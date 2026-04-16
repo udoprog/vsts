@@ -1,0 +1,39 @@
+{
+  "tags": [
+    "Dark",
+    "Flutter",
+    "Horror",
+    "Lofi"
+  ],
+  "info": {
+    "Author": "Punk Labs",
+    "Description": "The sadness lingers on."
+  },
+  "params": {
+    "Body Damp": 17.5,
+    "Body Size": 62.5,
+    "MIDI Bend Range": 1,
+    "MIDI Sensitivity": 98.0,
+    "MIDI Sustain Lock": false,
+    "Media Flutter": 11.537468910217285,
+    "Media Mono": 0.0,
+    "Media Noise Amount": 17.2500057220459,
+    "Media Noise Type": 0,
+    "Media Shape": 85.0,
+    "Media Speed": 78.0,
+    "Mix Gain": 0.0,
+    "Mix Pan": 0.0,
+    "Mix Saturation": 13.5,
+    "Reverb Amount": 64.0,
+    "Reverb Damp": 22.0,
+    "Reverb Highpass": 80.0,
+    "Reverb Size": 56.5,
+    "Sampler Bits": 11,
+    "Sampler Highpass": 104.51942443847656,
+    "Sampler Lowpass": 1.598954200744629,
+    "Sampler Samplerate": 29.478225708007812,
+    "Strings Brightness": 0.0,
+    "Strings Detuned": 6.25,
+    "Strings In Tune": 53.500003814697266
+  }
+}

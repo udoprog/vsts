@@ -1,0 +1,39 @@
+{
+  "tags": [
+    "Flutter",
+    "Horror",
+    "Lofi",
+    "Mono"
+  ],
+  "info": {
+    "Author": "Punk Labs",
+    "Description": "An old mono phonograph."
+  },
+  "params": {
+    "Body Damp": 61.75000762939453,
+    "Body Size": 50.0,
+    "MIDI Bend Range": 0,
+    "MIDI Sensitivity": 96.0,
+    "MIDI Sustain Lock": false,
+    "Media Flutter": 16.736385345458984,
+    "Media Mono": 100.0,
+    "Media Noise Amount": 43.75001907348633,
+    "Media Noise Type": 0,
+    "Media Shape": 99.9000015258789,
+    "Media Speed": 78.0,
+    "Mix Gain": 0.0,
+    "Mix Pan": 0.0,
+    "Mix Saturation": 45.7500114440918,
+    "Reverb Amount": 63.5,
+    "Reverb Damp": 22.0,
+    "Reverb Highpass": 80.0,
+    "Reverb Size": 47.0,
+    "Sampler Bits": 16,
+    "Sampler Highpass": 200.0,
+    "Sampler Lowpass": 1.7151528596878052,
+    "Sampler Samplerate": 44.099998474121094,
+    "Strings Brightness": 45.0,
+    "Strings Detuned": 20.0,
+    "Strings In Tune": 32.5
+  }
+}

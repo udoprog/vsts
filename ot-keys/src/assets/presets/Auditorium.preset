@@ -1,0 +1,38 @@
+{
+  "tags": [
+    "Bright",
+    "Chill",
+    "Lofi"
+  ],
+  "info": {
+    "Author": "Punk Labs",
+    "Description": "Eyes and ears forward everyone!"
+  },
+  "params": {
+    "Body Damp": 0.0,
+    "Body Size": 100.0,
+    "MIDI Bend Range": 1,
+    "MIDI Sensitivity": 100.0,
+    "MIDI Sustain Lock": false,
+    "Media Flutter": 3.7599680423736572,
+    "Media Mono": 47.74998474121094,
+    "Media Noise Amount": 14.5,
+    "Media Noise Type": 1,
+    "Media Shape": 34.2599983215332,
+    "Media Speed": 49.0,
+    "Mix Gain": 0.0,
+    "Mix Pan": 0.0,
+    "Mix Saturation": 39.0,
+    "Reverb Amount": 50.0,
+    "Reverb Damp": 25.0,
+    "Reverb Highpass": 160.0,
+    "Reverb Size": 63.74999237060547,
+    "Sampler Bits": 10,
+    "Sampler Highpass": 20.0,
+    "Sampler Lowpass": 3.5733351707458496,
+    "Sampler Samplerate": 22.049999237060547,
+    "Strings Brightness": 72.75000762939453,
+    "Strings Detuned": 2.75,
+    "Strings In Tune": 72.75000762939453
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "tags": [
+    "Ambient",
+    "Chill",
+    "Dark",
+    "Hiphop",
+    "Lofil"
+  ],
+  "info": {
+    "Author": "Punk Labs",
+    "Description": "Just a rainy day in October."
+  },
+  "params": {
+    "Body Damp": 15.0,
+    "Body Size": 75.0,
+    "MIDI Bend Range": 2,
+    "MIDI Sensitivity": 98.0,
+    "MIDI Sustain Lock": false,
+    "Media Flutter": 1.0,
+    "Media Mono": 0.0,
+    "Media Noise Amount": 20.0,
+    "Media Noise Type": 0,
+    "Media Shape": 85.0,
+    "Media Speed": 78.0,
+    "Mix Gain": 0.0,
+    "Mix Pan": 0.0,
+    "Mix Saturation": 15.0,
+    "Reverb Amount": 62.5,
+    "Reverb Damp": 30.0,
+    "Reverb Highpass": 80.0,
+    "Reverb Size": 61.25000762939453,
+    "Sampler Bits": 16,
+    "Sampler Highpass": 40.0,
+    "Sampler Lowpass": 1.6685389280319214,
+    "Sampler Samplerate": 44.099998474121094,
+    "Strings Brightness": 23.000001907348633,
+    "Strings Detuned": -3.0,
+    "Strings In Tune": 95.0
+  }
+}
