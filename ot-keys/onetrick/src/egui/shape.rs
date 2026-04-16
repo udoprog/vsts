@@ -27,11 +27,9 @@
 
 use std::f32::consts::TAU;
 
-use nih_plug_egui::egui::{
-    emath::{Pos2, Vec2},
-    epaint::PathShape,
-    Shape, Stroke,
-};
+use nih_plug_egui::egui::Shape;
+use nih_plug_egui::egui::emath::{Pos2, Vec2};
+use nih_plug_egui::egui::epaint::{PathShape, PathStroke};
 
 /// Extends Shapes with an arc_stroke function
 pub trait ShapeEx {
@@ -40,7 +38,7 @@ pub trait ShapeEx {
         radius: f32,
         start_angle: f32,
         end_angle: f32,
-        stroke: impl Into<Stroke>,
+        stroke: impl Into<PathStroke>,
     ) -> Shape;
 }
 
@@ -51,7 +49,7 @@ impl ShapeEx for Shape {
         radius: f32,
         start_angle: f32,
         end_angle: f32,
-        stroke: impl Into<Stroke>,
+        stroke: impl Into<PathStroke>,
     ) -> Shape {
         //self.circle_stroke(center, radius, stroke);
         let angle_range_abs = (end_angle - start_angle).abs();

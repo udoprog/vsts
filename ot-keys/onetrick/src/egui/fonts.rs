@@ -25,6 +25,8 @@
     OneTrick.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+use std::sync::Arc;
+
 use nih_plug_egui::egui::{
     FontData,
     FontDefinitions,
@@ -55,24 +57,18 @@ impl BasicFonts {
             baseline_offset_factor: f32,
             } */
         // Label Font: Teko
-        fonts.font_data.insert(
-            "Teko".to_owned(),
-            FontData::from_static(include_bytes!("../assets/fonts/Teko/Teko-Regular.ttf")).tweak(
-                FontTweak { // egui 0.22.0:
-                    
+        
+        let font_data = FontData::from_static(include_bytes!("../assets/fonts/Teko/Teko-Regular.ttf")).tweak(
+                FontTweak {
                     scale: 1.00,
                     y_offset_factor: 0.08,
-                    //y_offset: 3.0,
                     ..Default::default()
                 }
-                /*
-                FontTweak { // egui 0.19.0:
-                    scale: 1.0,
-                    y_offset_factor: -0.28,
-                    ..Default::default()
-                },
-                */
-            ),
+            );
+        
+        fonts.font_data.insert(
+            "Teko".to_owned(),
+            Arc::new(font_data),
         );
 
         fonts
@@ -81,24 +77,18 @@ impl BasicFonts {
             .or_default()
             .insert(0, "Teko".to_owned());
 
-        // Title Font: Rajdhani
-        fonts.font_data.insert(
-            "Rajdhani".to_owned(),
-            FontData::from_static(include_bytes!("../assets/fonts/Rajdhani/Rajdhani-Bold.ttf"))
+        let font_data = Arc::new(FontData::from_static(include_bytes!("../assets/fonts/Rajdhani/Rajdhani-Bold.ttf"))
                 .tweak(
-                    FontTweak { // egui 0.22.0:
-                    
+                    FontTweak {
                         scale: 1.00,
                         ..Default::default()
                     }
-                    /*
-                    FontTweak { // egui 0.19.0:
-                        scale: 1.0,
-                        y_offset_factor: -0.28,
-                        ..Default::default()
-                    },
-                    */
-                ),
+                ));
+
+        // Title Font: Rajdhani
+        fonts.font_data.insert(
+            "Rajdhani".to_owned(),
+            font_data
         );
 
         fonts

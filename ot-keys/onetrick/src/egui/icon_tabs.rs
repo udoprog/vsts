@@ -26,22 +26,7 @@
 */
 
 use nih_plug_egui::egui::{
-    vec2,
-    Align2,
-    Color32,
-    Rect,
-    Response,
-    Rounding,
-    Sense,
-    Ui,
-    Vec2,
-    Widget,
-    /*
-    Shape,
-    epaint::{
-        Shadow,
-    },
-    */
+    Align2, Color32, CornerRadius as Rounding, Rect, Response, Sense, StrokeKind, Ui, UiBuilder, Vec2, Widget, vec2
 };
 
 use super::icons::{Dingbat, IconDrawer};
@@ -83,7 +68,7 @@ impl Default for IconTabsStyle {
             color: Color32::DARK_GRAY,
             color_active: Color32::DARK_RED,
             tab_color_active: Color32::WHITE,
-            tab_rounding: Rounding::same(5.0),
+            tab_rounding: Rounding::same(5),
             icon_padding: 10.0,
             tab_hover_resize: Vec2::new(0.0, 2.0),
         }
@@ -160,7 +145,7 @@ impl<'a> Widget for IconTabs<'a> {
         //let tab_size = Vec2::new(tab_width, tab_height);
         let topleft = ui.next_widget_position();
         let rect = Rect::from_min_size(topleft, Vec2::new(ui.available_width(), tab_height));
-        ui.allocate_ui_at_rect(rect, |ui| {
+        ui.allocate_new_ui(UiBuilder::new().max_rect(rect), |ui| {
             let color = self.style.panel_color;
             if color.a() > 0 {
                 ui.painter()
@@ -230,7 +215,7 @@ impl<'a> Widget for IconTabs<'a> {
                     if response.has_focus() {
                         let focus_stroke = ui.style().visuals.selection.stroke;
                         if !focus_stroke.is_empty() {
-                            ui.painter().rect_stroke(expanded_rect, self.style.tab_rounding, focus_stroke);
+                            ui.painter().rect_stroke(expanded_rect, self.style.tab_rounding, focus_stroke, StrokeKind::Middle);
                         }
                     }
 
