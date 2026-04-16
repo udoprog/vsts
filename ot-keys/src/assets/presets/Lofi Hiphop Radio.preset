@@ -1,0 +1,39 @@
+{
+  "tags": [
+    "Chill",
+    "Flutter",
+    "Hiphop",
+    "Lofi"
+  ],
+  "info": {
+    "Author": "Punk Labs",
+    "Description": "Chill lofi keys to study to."
+  },
+  "params": {
+    "Body Damp": 15.000000953674316,
+    "Body Size": 50.0,
+    "MIDI Bend Range": 1,
+    "MIDI Sensitivity": 100.0,
+    "MIDI Sustain Lock": false,
+    "Media Flutter": 3.249979019165039,
+    "Media Mono": 0.0,
+    "Media Noise Amount": 31.75,
+    "Media Noise Type": 0,
+    "Media Shape": 99.25499725341797,
+    "Media Speed": 297.3334045410156,
+    "Mix Gain": 0.0,
+    "Mix Pan": 0.0,
+    "Mix Saturation": 50.0,
+    "Reverb Amount": 48.00000762939453,
+    "Reverb Damp": 25.0,
+    "Reverb Highpass": 200.0,
+    "Reverb Size": 39.5,
+    "Sampler Bits": 11,
+    "Sampler Highpass": 67.34458923339844,
+    "Sampler Lowpass": 1.783815622329712,
+    "Sampler Samplerate": 22.049999237060547,
+    "Strings Brightness": 50.0,
+    "Strings Detuned": 2.75,
+    "Strings In Tune": 88.0
+  }
+}

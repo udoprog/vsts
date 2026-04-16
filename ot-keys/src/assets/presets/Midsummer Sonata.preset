@@ -1,0 +1,40 @@
+{
+  "tags": [
+    "Ambient",
+    "Bright",
+    "Classical",
+    "Clean",
+    "Jazz"
+  ],
+  "info": {
+    "Author": "Punk Labs",
+    "Description": "A melody carries through the warm summer air."
+  },
+  "params": {
+    "Body Damp": 20.0,
+    "Body Size": 95.6837387084961,
+    "MIDI Bend Range": 0,
+    "MIDI Sensitivity": 100.0,
+    "MIDI Sustain Lock": false,
+    "Media Flutter": 6.2831854820251465,
+    "Media Mono": 0.0,
+    "Media Noise Amount": 2.0,
+    "Media Noise Type": 0,
+    "Media Shape": 94.83856201171875,
+    "Media Speed": 80.70140075683594,
+    "Mix Gain": 0.0,
+    "Mix Pan": 0.0,
+    "Mix Saturation": 30.0,
+    "Reverb Amount": 60.375,
+    "Reverb Damp": 17.5,
+    "Reverb Highpass": 99.84221649169922,
+    "Reverb Size": 64.0,
+    "Sampler Bits": 16,
+    "Sampler Highpass": 39.4476203918457,
+    "Sampler Lowpass": 20.0,
+    "Sampler Samplerate": 22.049999237060547,
+    "Strings Brightness": 36.749996185302734,
+    "Strings Detuned": 0.0,
+    "Strings In Tune": 98.33332061767578
+  }
+}

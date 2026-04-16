@@ -1,0 +1,39 @@
+{
+  "tags": [
+    "Ambient",
+    "Chill",
+    "Hiphop",
+    "Lofi"
+  ],
+  "info": {
+    "Author": "Punk Labs",
+    "Description": "It feels like another lifetime."
+  },
+  "params": {
+    "Body Damp": 25.0,
+    "Body Size": 60.0,
+    "MIDI Bend Range": 1,
+    "MIDI Sensitivity": 100.0,
+    "MIDI Sustain Lock": false,
+    "Media Flutter": 11.999996185302734,
+    "Media Mono": 0.0,
+    "Media Noise Amount": 30.0,
+    "Media Noise Type": 1,
+    "Media Shape": 75.63998413085938,
+    "Media Speed": 38.097930908203125,
+    "Mix Gain": 0.0,
+    "Mix Pan": 0.0,
+    "Mix Saturation": 32.5,
+    "Reverb Amount": 88.75,
+    "Reverb Damp": 25.0,
+    "Reverb Highpass": 100.0,
+    "Reverb Size": 100.0,
+    "Sampler Bits": 11,
+    "Sampler Highpass": 60.0,
+    "Sampler Lowpass": 1.899999976158142,
+    "Sampler Samplerate": 33.322872161865234,
+    "Strings Brightness": 75.0,
+    "Strings Detuned": 3.5,
+    "Strings In Tune": 85.0
+  }
+}

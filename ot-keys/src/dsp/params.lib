@@ -1,0 +1,56 @@
+/*
+   ┏━━━┓╱╱╱╱╱┏┓╱╱┏┓╱╱╱╱╱┏┓╱╱
+   ┃┏━┓┃╱╱╱╱╱┃┃╱╱┃┃╱╱╱╱╱┃┃╱╱╱
+   ┃┗━┛┣┓┏┳━━┫┃┏┓┃┃╱╱┏━━┫┗━┳━━┓
+   ┃┏━━┫┃┃┃┏┓┃┗┛┃┃┃╱┏┫┏┓┃┏┓┃━━┫
+   ┃┃╱╱┃┗┛┃┃┃┃┏┓┃┃┗━┛┃┏┓┃┗┛┣━━┃
+   ┗┛╱╱┗━━┻┛┗┻┛┗┛┗━━━┻┛┗┻━━┻━━┛
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+    Copyright (c) 2024 Punk Labs LLC
+
+    This section is part of OneTrick KEYS
+
+    OneTrick KEYS is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by the Free
+    Software Foundation, either version 3 of the License, or (at your option)
+    any later version.
+
+    OneTrick KEYS is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+    more details.
+
+    You should have received a copy of the GNU General Public License along with
+    OneTrick KEYS.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+pitchWheelRange = hslider("[010]Bend_Range[group:MIDI][export:Bend Range][unit:st][type:int]", 1, 1, 12, 1);
+sustain = max(ot.pluginSustain, nentry("[020]Sustain_Lock[group:MIDI][export:Sustain Lock][type:bool]", 0, 0, 1, 1));
+brightness = hslider("[030]Brightness[group:Strings][export:Brightness][unit:%]", 50, 0, 100, 0.01) / 100;
+tuningFactor = (1-hslider("[040]In_Tune[group:Strings][export:In Tune][unit:%]", 100, 0, 100, 0.01) / 100);
+detuningFactor = hslider("[050]Detuned[group:Strings][export:Detuned][unit:%]", 2.75, 0, 100, 0.01) * 10 / 100;
+
+mixGain = ba.db2linear(max(-100, hslider("[110]Mix_Gain[group:Mix][export:Gain][unit:dB]", 0, -100, 6, 0.1) ) : ot.smoothParam);
+mixPan = hslider("[120]Mix_Pan[group:Mix][export:Pan][unit:%]", 0, -100, 100, 0.01) * 0.01 : ot.smoothParam;
+mixSaturation = hslider("[130]Mix_Saturation[group:Mix][export:Saturation][unit:%]", 0, 0, 100, 0.01) * 0.01;
+
+bodySize = hslider("[210]Body_Size[group:Body][export:Size][unit:%]", 50, 0, 100, 0.01) / 100;
+bodyDamp = hslider("[220]Body_Damp[group:Body][export:Damp][unit:%]", 15, 0, 100, 0.01) * 0.0095;
+
+reverbAmount = hslider("[310]Reverb_Amount[group:Reverb][export:Amount][unit:%]", 50, 0, 100, 0.01) * 0.01;
+reverbSize = hslider("[320]Reverb_Size[group:Reverb][export:Size][unit:%]", 15, 0, 100, 0.01) * 0.01;
+reverbDamp = hslider("[330]Reverb_Damp[group:Reverb][export:Damp][unit:%]", 25, 0, 100, 0.01) * 0.0095;
+reverbCutoff = hslider("[340]Reverb_Highpass[group:Reverb][export:Highpass][unit:Hz]", 200, 100, 1000, 0.01);
+
+samplerLowpass = hslider("[410]Sampler_Lowpass[group:Sampler][export:Lowpass][unit:kHz]", 20, 1, 20, 0.01) * 1000 : min(ot.MAX_FILTER_FREQ) : ot.smoothParam;
+samplerHighpass = hslider("[420]Sampler_Highpass[group:Sampler][export:Highpass][unit:Hz]", 20, 20, 200, 0.01) : ot.smoothParam;
+samplerSamplerate = hslider("[430]Sampler_Samplerate[group:Sampler][export:Samplerate][unit:kHz]", 44.1, 22.05, 44.1, 0.01) * 1000 : min(ma.SR);
+samplerBits = hslider("[440]Sampler_Bits[group:Sampler][export:Bits][unit:bit]", 16, 8, 16, 1);
+
+mediaNoiseType = hslider("[510]Media_Noise_Type[group:Media][export:Noise Type][enum:Vinyl,Tape]", 0, 0, 1, 1);
+mediaNoiseAmount = hslider("[520]Media_Noise_Amount[group:Media][export:Noise Amount][unit:%]", 0, 0, 100, 0.01)/100;
+mediaFlutter = hslider("[530]Media_Flutter[group:Media][export:Flutter][unit:%]", 0, 0, 100, 0.01) * 0.01;
+mediaSpeed = hslider("[540]Media_Speed[group:Media][export:Speed][unit:rpm]", 78, 33, 500, 0.01);
+mediaShape = hslider("[550]Media_Shape[group:Media][export:Shape][unit:%]", 75, 1, 100, 0.01) * 0.01;
+mediaMono = hslider("[560]Media_Mono[group:Media][export:Mono][unit:%]", 0, 0, 100, 0.01)/100;

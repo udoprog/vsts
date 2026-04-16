@@ -1,0 +1,39 @@
+{
+  "tags": [
+    "Chill",
+    "Dark",
+    "Flutter",
+    "Hiphop"
+  ],
+  "info": {
+    "Author": "Punk Labs",
+    "Description": "For the ones we left behind."
+  },
+  "params": {
+    "Body Damp": 25.0,
+    "Body Size": 100.0,
+    "MIDI Bend Range": 1,
+    "MIDI Sensitivity": 82.0,
+    "MIDI Sustain Lock": false,
+    "Media Flutter": 7.804971694946289,
+    "Media Mono": 0.0,
+    "Media Noise Amount": 6.5,
+    "Media Noise Type": 1,
+    "Media Shape": 73.5,
+    "Media Speed": 186.70518493652344,
+    "Mix Gain": 0.0,
+    "Mix Pan": 0.0,
+    "Mix Saturation": 47.750003814697266,
+    "Reverb Amount": 53.75,
+    "Reverb Damp": 100.0,
+    "Reverb Highpass": 1000.0,
+    "Reverb Size": 58.000003814697266,
+    "Sampler Bits": 14,
+    "Sampler Highpass": 89.52388000488281,
+    "Sampler Lowpass": 1.229056477546692,
+    "Sampler Samplerate": 22.049999237060547,
+    "Strings Brightness": 50.0,
+    "Strings Detuned": 6.249992847442627,
+    "Strings In Tune": 58.499996185302734
+  }
+}

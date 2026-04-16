@@ -1,0 +1,38 @@
+{
+  "tags": [
+    "Classical",
+    "Dark",
+    "Jazz"
+  ],
+  "info": {
+    "Author": "Punk Labs",
+    "Description": "It really is a historical landmark."
+  },
+  "params": {
+    "Body Damp": 15.000000953674316,
+    "Body Size": 77.00000762939453,
+    "MIDI Bend Range": 2,
+    "MIDI Sensitivity": 100.0,
+    "MIDI Sustain Lock": false,
+    "Media Flutter": 3.8999979496002197,
+    "Media Mono": 0.0,
+    "Media Noise Amount": 29.000017166137695,
+    "Media Noise Type": 0,
+    "Media Shape": 90.0,
+    "Media Speed": 98.0,
+    "Mix Gain": 0.0,
+    "Mix Pan": 0.0,
+    "Mix Saturation": 34.75,
+    "Reverb Amount": 61.25,
+    "Reverb Damp": 25.0,
+    "Reverb Highpass": 100.0,
+    "Reverb Size": 26.249998092651367,
+    "Sampler Bits": 16,
+    "Sampler Highpass": 78.4699935913086,
+    "Sampler Lowpass": 1.6566801071166992,
+    "Sampler Samplerate": 44.099998474121094,
+    "Strings Brightness": 50.0,
+    "Strings Detuned": 2.75,
+    "Strings In Tune": 96.0
+  }
+}

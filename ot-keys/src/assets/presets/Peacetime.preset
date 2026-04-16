@@ -1,0 +1,39 @@
+{
+  "tags": [
+    "Bright",
+    "Classical",
+    "Clean",
+    "Jazz"
+  ],
+  "info": {
+    "Author": "Punk Labs",
+    "Description": "The calm after the storm."
+  },
+  "params": {
+    "Body Damp": 15.000000953674316,
+    "Body Size": 80.0,
+    "MIDI Bend Range": 2,
+    "MIDI Sensitivity": 100.0,
+    "MIDI Sustain Lock": false,
+    "Media Flutter": 1.999999761581421,
+    "Media Mono": 0.0,
+    "Media Noise Amount": 28.7500057220459,
+    "Media Noise Type": 1,
+    "Media Shape": 65.0,
+    "Media Speed": 81.0,
+    "Mix Gain": 0.0,
+    "Mix Pan": -10.0,
+    "Mix Saturation": 23.0,
+    "Reverb Amount": 78.99999237060547,
+    "Reverb Damp": 0.0,
+    "Reverb Highpass": 1000.0,
+    "Reverb Size": 42.0,
+    "Sampler Bits": 16,
+    "Sampler Highpass": 37.75,
+    "Sampler Lowpass": 5.132920265197754,
+    "Sampler Samplerate": 44.099998474121094,
+    "Strings Brightness": 50.0,
+    "Strings Detuned": 5.5,
+    "Strings In Tune": 74.0
+  }
+}

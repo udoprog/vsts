@@ -1,0 +1,38 @@
+{
+  "tags": [
+    "Bright",
+    "Lofi",
+    "Rock"
+  ],
+  "info": {
+    "Author": "Punk Labs",
+    "Description": "You really only need 3 note chords."
+  },
+  "params": {
+    "Body Damp": 35.0,
+    "Body Size": 41.50000762939453,
+    "MIDI Bend Range": 1,
+    "MIDI Sensitivity": 88.0,
+    "MIDI Sustain Lock": false,
+    "Media Flutter": 4.699997901916504,
+    "Media Mono": 0.0,
+    "Media Noise Amount": 17.5,
+    "Media Noise Type": 0,
+    "Media Shape": 95.0,
+    "Media Speed": 49.0,
+    "Mix Gain": 0.0,
+    "Mix Pan": 0.0,
+    "Mix Saturation": 38.25,
+    "Reverb Amount": 50.5,
+    "Reverb Damp": 25.0,
+    "Reverb Highpass": 80.0,
+    "Reverb Size": 31.75,
+    "Sampler Bits": 16,
+    "Sampler Highpass": 30.0,
+    "Sampler Lowpass": 14.75,
+    "Sampler Samplerate": 22.049999237060547,
+    "Strings Brightness": 80.25,
+    "Strings Detuned": 6.749999523162842,
+    "Strings In Tune": 72.0
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "tags": [
+    "Chill",
+    "Dark",
+    "Hiphop"
+  ],
+  "info": {
+    "Author": "Punk Labs",
+    "Description": "A cabin in snow-covered mountains."
+  },
+  "params": {
+    "Body Damp": 25.0,
+    "Body Size": 60.0,
+    "MIDI Bend Range": 1,
+    "MIDI Sensitivity": 100.0,
+    "MIDI Sustain Lock": false,
+    "Media Flutter": 3.8999948501586914,
+    "Media Mono": 0.0,
+    "Media Noise Amount": 49.75,
+    "Media Noise Type": 1,
+    "Media Shape": 99.25499725341797,
+    "Media Speed": 150.0,
+    "Mix Gain": 0.0,
+    "Mix Pan": 0.0,
+    "Mix Saturation": 5.0,
+    "Reverb Amount": 60.0,
+    "Reverb Damp": 20.0,
+    "Reverb Highpass": 180.0,
+    "Reverb Size": 42.5,
+    "Sampler Bits": 16,
+    "Sampler Highpass": 30.0,
+    "Sampler Lowpass": 1.6685389280319214,
+    "Sampler Samplerate": 44.099998474121094,
+    "Strings Brightness": 25.0,
+    "Strings Detuned": 4.999999523162842,
+    "Strings In Tune": 96.0
+  }
+}
