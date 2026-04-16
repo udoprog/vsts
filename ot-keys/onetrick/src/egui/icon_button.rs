@@ -30,11 +30,12 @@ use nih_plug_egui::egui::{
     Align2,
     Color32,
     Response,
-    Rounding,
+    CornerRadius as Rounding,
     Sense,
     Ui,
     Widget,
     EventFilter,
+    StrokeKind,
 };
 
 use super::icons::{Dingbat, IconDrawer};
@@ -48,7 +49,7 @@ pub struct IconButtonStyle {
     /// The XY padding
     pub padding: f32,
 
-    /// The amount of rounding, this should probably be replaced with a Rounding type
+    /// The amount of rounding, this should probably be replaced with a rounding type
     pub rounding: f32,
 
     /// The text color
@@ -139,7 +140,7 @@ impl Widget for IconButton {
         };
         if color.a() > 0 {
             ui.painter()
-                .rect_filled(rect, Rounding::same(self.style.rounding), color);
+                .rect_filled(rect, Rounding::same(self.style.rounding as u8), color);
         }
 
         let color = if response.hovered() || response.has_focus() {
@@ -158,7 +159,7 @@ impl Widget for IconButton {
         if response.has_focus() {
             let focus_stroke = ui.style().visuals.selection.stroke;
             if !focus_stroke.is_empty() {
-                ui.painter().rect_stroke(rect, self.style.rounding, focus_stroke);
+                ui.painter().rect_stroke(rect, self.style.rounding, focus_stroke, StrokeKind::Middle);
             }
         }
 

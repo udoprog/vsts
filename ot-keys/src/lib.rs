@@ -63,11 +63,11 @@ use nih_plug_egui::{
         Order,
         pos2,
         Rect,
-        Rounding,
+        CornerRadius as Rounding,
         Sense,
         Stroke,
         vec2,
-        Vec2,
+        UiBuilder,
     },
     EguiState,
 };
@@ -212,7 +212,7 @@ impl OneTrickKeys {
         // Tooltips and Popup Windows:
         style.visuals.window_fill = Color32::DARK_GRAY;
         style.visuals.window_stroke = Stroke::default();
-        style.visuals.popup_shadow = Shadow {offset: Vec2::new(0.0, 0.0), blur: 6.0, spread: 0.0, color: Color32::from_black_alpha(32)};
+        style.visuals.popup_shadow = Shadow {offset: [0, 0], blur: 6, spread: 0, color: Color32::from_black_alpha(32)};
         style.visuals.override_text_color = Some(Color32::WHITE);
         
         style.visuals.selection.stroke = Stroke::new(2.0, Color32::WHITE);
@@ -673,13 +673,13 @@ impl Plugin for OneTrickKeys {
                         .fixed_pos(pos2(0.0, 0.0))
                         .order(Order::Foreground)
                         .show(ctx, |ui| {
-                            Frame::none()
-                                .outer_margin(Margin::same(0.0))
-                                .inner_margin(Margin::same(10.0))
+                            Frame::new()
+                                .outer_margin(Margin::same(0))
+                                .inner_margin(Margin::same(10))
                                 .fill(Color32::from_black_alpha(
                                     (200.0 * show_credits_amount) as u8,
                                 ))
-                                //.rounding(panel_rounding)
+                                //.corner_radius(panel_rounding)
                                 .show(ui, |ui| {
                                     let available_size =
                                         vec2(ui.available_width(), ui.available_height());
@@ -720,9 +720,9 @@ impl Plugin for OneTrickKeys {
                 }
                 CentralPanel::default()
                     .frame(
-                        Frame::none()
-                            .outer_margin(Margin::same(0.0))
-                            .inner_margin(Margin::same(10.0))
+                        Frame::new()
+                            .outer_margin(Margin::same(0))
+                            .inner_margin(Margin::same(10))
                             .fill(palette.white().brightness(0.1).into()),
                     )
                     .show(ctx, |ui| {
@@ -750,7 +750,7 @@ impl Plugin for OneTrickKeys {
                         let piano_rect = Rect::from_min_size(pos2(30.0, ui.available_height()-60.0), vec2(890.0, 60.0));
                         ui.painter().rect_filled(
                             piano_rect.expand(2.0),
-                            Rounding::same(2.0),
+                            Rounding::same(2),
                             palette.black().to_color32(),
                         );
                         ui.painter().midi_keyboard(
@@ -789,17 +789,18 @@ impl Plugin for OneTrickKeys {
 
                         ui.set_width(ui.available_width());
 
-                        let panel_rounding = Rounding::same(15.0);
+                        let panel_rounding = Rounding::same(15);
                         //let panel_shadow = Shadow::small_light();
-                        let panel_shadow = Shadow {offset: Vec2::new(0.0, 0.0), blur: 24.0, spread: 0.0, color: Color32::from_black_alpha(24)};
+                        let panel_shadow = Shadow {offset: [0, 0], blur: 24, spread: 0, color: Color32::from_black_alpha(24)};
 
                         ui.horizontal(|ui| {
                             // =========================================
                             // ============== MAIN PANEL ==============
                             // =========================================
-                            Frame::none()
-                                .outer_margin(Margin::same(0.0))
-                                .inner_margin(Margin::symmetric(10.0, 10.0))
+
+                            Frame::new()
+                                .outer_margin(Margin::same(0))
+                                .inner_margin(Margin::symmetric(10, 10))
                                 .fill(Color32::TRANSPARENT)
                                 //.stroke(Stroke::new(1.0, palette.black()))
                                 .show(ui, |ui| {
@@ -1154,36 +1155,36 @@ impl Plugin for OneTrickKeys {
                             // ============================================
                             // ============== GLOBALS PANELS ==============
                             // ============================================
-                            ui.allocate_ui_at_rect(Rect::from_min_size(pos2(560.0, 10.0), vec2(380.0, 500.0)), |ui| {
-                                Frame::none() // Global Panel Wrapper
+                            ui.allocate_new_ui(UiBuilder::new().max_rect(Rect::from_min_size(pos2(560.0, 10.0), vec2(380.0, 500.0))), |ui| {
+                                Frame::new() // Global Panel Wrapper
                                     /*
                                     .outer_margin(Margin::same(0.0))
                                     .inner_margin(Margin::same(20.0))
-                                    .rounding(panel_rounding)
+                                    .corner_radius(panel_rounding)
                                     .fill(palette.white().into())
                                     .stroke(Stroke::new(2.0, palette.black()))
                                     */
                                     .show(ui, |ui| {
 
                                     let frame_outer_margin = Margin {
-                                        top:5.0,
+                                        top:5,
                                         ..Default::default()
                                     };
                                     //let frame_inner_margin = Margin::same(10.0);
-                                    let frame_inner_margin = Margin{left: 0.0, right: 0.0, top: 5.0, bottom: 15.0};
-                                    let subframe_inner_margin = Margin::same(10.0);
+                                    let frame_inner_margin = Margin{left: 0, right: 0, top: 5, bottom: 15};
+                                    let subframe_inner_margin = Margin::same(10);
                                                                     
                                     //ui.set_max_width(75.0*5.0+30.0);
                                     ui.vertical_centered(|ui| {
                                         // ===========================================
                                         // ============== PRESETS PANEL ==============
                                         // ===========================================
-                                        Frame::none()
+                                        Frame::new()
                                             .outer_margin(frame_outer_margin)
                                             .inner_margin(frame_inner_margin)
                                             //.fill(palette.color(6).shade(1).into())
                                             .fill(palette.white().brightness(0.8).into())
-                                            .rounding(panel_rounding)
+                                            .corner_radius(panel_rounding)
                                             .shadow(panel_shadow)
                                             .show(ui, |ui| {
 
@@ -1194,8 +1195,8 @@ impl Plugin for OneTrickKeys {
                                                 );
                                             });
 
-                                            Frame::none()
-                                            .outer_margin(Margin::same(0.0))
+                                            Frame::new()
+                                            .outer_margin(Margin::same(0))
                                             .inner_margin(subframe_inner_margin)
                                             //.fill(palette.color(6).shade(1).into())
                                             .fill(palette.white().brightness(0.3).into())
@@ -1252,12 +1253,11 @@ impl Plugin for OneTrickKeys {
                         });
 
                         // Moved Logo down here to eliminate Area causing focus issues...
-                        ui.allocate_ui_at_rect(Rect::from_min_size(pos2(0.0, 0.0), vec2(0.0, 0.0)), |ui| {
+                        ui.allocate_new_ui(UiBuilder::new().max_rect(Rect::from_min_size(pos2(0.0, 0.0), vec2(0.0, 0.0))), |ui| {
                             let response = ui.allocate_rect(
                                 Rect::from_min_size(pos2(0.0, 0.0),
                                 vec2(190.0, 70.0)),
-                                // Sense::click());
-                                Sense{click:true, drag:false, focusable:false});
+                                Sense::CLICK);
                             if response.clicked() {
                                 show_credits.store(true, Ordering::Relaxed);
                             }

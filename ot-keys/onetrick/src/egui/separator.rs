@@ -26,7 +26,7 @@
 */
 
 use nih_plug_egui::egui::{
-    vec2, Color32, Response, Rounding, Sense, Ui, Widget,
+    vec2, Color32, Response, CornerRadius as Rounding, Sense, Ui, Widget,
 };
 
 /// Orientation for a Separator Widget
@@ -128,7 +128,7 @@ impl Widget for Separator {
                 .rect_filled(rect, Rounding::same(9999.0), Color32::GRAY);
             */
             ui.painter()
-                .rect_filled(rect.shrink(self.style.padding), Rounding::same(9999.0), color);
+                .rect_filled(rect.shrink(self.style.padding), Rounding::same(u8::MAX), color);
         }
 
         response

@@ -33,7 +33,7 @@ use nih_plug_egui::egui::{
     Id,
     Color32,
     Response,
-    Rounding,
+    CornerRadius as Rounding,
     Ui,
     Frame,
     TextEdit,
@@ -222,10 +222,10 @@ impl PresetList {
         let search_text_id: Id = ui.id().with("search_text");
         let mut is_refreshing = false;
 
-        let mut frame = Frame::none()
-            .outer_margin(Margin::same(0.0))
-            .inner_margin(Margin::same(5.0))
-            .rounding(Rounding::same(10.0));
+        let mut frame = Frame::new()
+            .outer_margin(Margin::same(0))
+            .inner_margin(Margin::same(5))
+            .corner_radius(Rounding::same(10));
             if let Some(color) = self.style.bg_color {
                 if color.a() > 0 {
                     frame = frame.fill(color);
@@ -519,11 +519,11 @@ impl PresetList {
                         .show(ui.ctx(), |ui| {
                                 //ui.style_mut().visuals.override_text_color = Some(Color32::WHITE);
                                 //Set Size, and adjust for margins, how do you detect margins?
-                                Frame::none()
-                                .outer_margin(Margin::same(0.0))
-                                .inner_margin(Margin::same(5.0))
+                                Frame::new()
+                                .outer_margin(Margin::same(0))
+                                .inner_margin(Margin::same(5))
                                 .fill(Color32::from_rgba_premultiplied(32, 32, 32, 220))
-                                .rounding(Rounding::same(10.0)).show(ui, |ui| {
+                                .corner_radius(Rounding::same(10)).show(ui, |ui| {
                                     ui.set_width(popup_rect.width()-10.0); //Subtract margins
                                     ui.set_height(popup_rect.height()-10.0); //Subtract margins
 
@@ -589,11 +589,11 @@ impl PresetList {
                     //.inner_margin(Margin::same(10.0))
                     .show(ui.ctx(), |ui| {
                             //ui.style_mut().visuals.override_text_color = Some(self.style.color);
-                            Frame::none()
-                            .outer_margin(Margin::same(0.0))
-                            .inner_margin(Margin::same(5.0))
+                            Frame::new()
+                            .outer_margin(Margin::same(0))
+                            .inner_margin(Margin::same(5))
                             .fill(Color32::from_rgba_premultiplied(32, 32, 32, 220))
-                            .rounding(Rounding::same(10.0)).show(ui, |ui| {
+                            .corner_radius(Rounding::same(10)).show(ui, |ui| {
                                 ui.set_width(save_rect.width()-10.0); //Subtract margins
                                 ui.set_height(save_rect.height()-10.0); //Subtract margins
                                 /*

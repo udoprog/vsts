@@ -26,19 +26,19 @@
 */
 
 use nih_plug_egui::egui::{
-    epaint::{
-        PathShape,
-    },
     Color32,
     Painter,
     Pos2,
     Rect,
-    Rounding,
+    CornerRadius as Rounding,
     Vec2,
     Align2,
     FontId,
     FontFamily,
 };
+use nih_plug_egui::egui::epaint::{
+        PathShape,
+    };
 
 use crate::egui::Dingbat;
 use crate::egui::icons::IconDrawer;
@@ -54,7 +54,7 @@ pub struct MidiKeyboardStyle {
 pub struct VuMeterStyle {
     pub dot_count: u32,
     pub spacing: f32,
-    pub padding: f32,
+    pub padding: u8,
     pub bg_color: Color32,
     pub unlit_color: Color32,
     pub lit_color: Color32,
@@ -253,7 +253,7 @@ impl DesignElementDrawer for Painter {
             self.rect_filled(rect, Rounding::same(style.padding), style.bg_color);
         }
         let is_vertical = rect.height() > rect.width();
-        let rect = rect.shrink(style.padding);
+        let rect = rect.shrink(style.padding as f32);
         let length = if is_vertical {rect.height()} else {rect.width()};
         let width = if is_vertical {rect.width()} else {rect.height()};
         let tick_length = length / style.dot_count as f32 - style.spacing;
@@ -270,7 +270,7 @@ impl DesignElementDrawer for Painter {
             let dot_color = if ratio > 0.89 {style.peak_color} else if ratio > 0.69 {style.warn_color} else {style.lit_color};
             let color = if index < lit_dot_count {dot_color} else {style.unlit_color};
             //self.circle_filled(pos, radius, color);
-            self.rect_filled(tick_rect, Rounding::same(1.0), color);
+            self.rect_filled(tick_rect, Rounding::same(1), color);
         }
     }
 
@@ -283,7 +283,7 @@ impl DesignElementDrawer for Painter {
 
         let is_vertical = rect.height() > rect.width();
         let mut rect_left = rect;
-        let padding_half = style.padding / 2.0;
+        let padding_half = style.padding as f32 / 2.0;
         if is_vertical {
             rect_left.set_width(rect.width() / 2.0+padding_half);
         } else {

@@ -26,21 +26,7 @@
 */
 
 use nih_plug_egui::egui::{
-    vec2,
-    Vec2,
-    Align2,
-    Color32,
-    FontFamily,
-    FontId,
-    Response,
-    Rounding,
-    Sense,
-    Ui,
-    Widget,
-    Shape,
-    epaint::{
-        Shadow,
-    }
+    Align2, Color32, FontFamily, FontId, Response, CornerRadius as Rounding, Sense, Shape, StrokeKind, Ui, Vec2, Widget, epaint::Shadow, vec2
 };
 
 use crate::color::InterpolateColors;
@@ -114,7 +100,7 @@ impl LabelStyle {
             font_id: FontId::new(22.0, FontFamily::Proportional),
             bg_color: Color32::DARK_GRAY,
             bg_height: 22.0,
-            shadow: Some(Shadow { offset: Vec2::new(0.0, 2.0), blur: 0.0, spread: 0.0, color: Color32::from_black_alpha(16) }),
+            shadow: Some(Shadow { offset: [0, 2], blur: 0, spread: 0, color: Color32::from_black_alpha(16) }),
             shadow_offset: vec2(0.0, 1.0),
             ..Default::default()
         }
@@ -209,11 +195,11 @@ impl Widget for Label {
             }
         }
 
-        let rounding = Rounding::same(9999.0);
+        let rounding = Rounding::same(u8::MAX);
 
         if let Some(shadow) = self.style.shadow {
-            let shadow = shadow.tessellate(rect.translate(self.style.shadow_offset), rounding);
-            let shadow = Shape::Mesh(shadow);
+            let shadow = shadow.as_shape(rect.translate(self.style.shadow_offset), rounding);
+            let shadow = Shape::Rect(shadow);
             ui.painter().add(shadow);
         }
 
@@ -239,7 +225,7 @@ impl Widget for Label {
         if response.has_focus() {
             let focus_stroke = ui.style().visuals.selection.stroke;
             if !focus_stroke.is_empty() {
-                ui.painter().rect_stroke(rect, rounding, focus_stroke);
+                ui.painter().rect_stroke(rect, rounding, focus_stroke, StrokeKind::Middle);
             }
         }
 

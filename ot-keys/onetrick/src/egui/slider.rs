@@ -31,6 +31,7 @@
 use lazy_static::lazy_static;
 use nih_plug::params::{BoolParam, FloatParam, IntParam};
 use nih_plug::prelude::{Param, ParamSetter};
+use nih_plug_egui::egui::StrokeKind;
 use nih_plug_egui::egui::{
     /*epaint::{
         PathShape,
@@ -41,7 +42,7 @@ use nih_plug_egui::egui::{
     Pos2,
     Rect,
     Response,
-    Rounding,
+    CornerRadius as Rounding,
     Sense,
     //Shape,
     Stroke,
@@ -666,7 +667,7 @@ impl<'a, P: Param + ParamDetails> ParamSlider<'a, P> {
                 slider_rect.shrink(slider_rect.width().min(slider_rect.height()) * 0.5);
 
             let mut focus_rect = track_rect;
-            let mut focus_rounding = Rounding::same(9999.0);
+            let mut focus_rounding = Rounding::same(u8::MAX);
 
             // Backing
             let color = self.style.bg_color;
@@ -682,7 +683,7 @@ impl<'a, P: Param + ParamDetails> ParamSlider<'a, P> {
                         }
                     };
                 }
-                let rounding = Rounding::same(self.style.width * 0.5); // Keep it nicely wrapped around the track
+                let rounding = Rounding::same((self.style.width / 2.0) as u8); // Keep it nicely wrapped around the track
                 ui.painter().rect_filled(bg_rect, rounding, color);
                 focus_rect = bg_rect;
                 focus_rounding = rounding;
@@ -728,7 +729,7 @@ impl<'a, P: Param + ParamDetails> ParamSlider<'a, P> {
                     };
                     //ui.painter().line_segment([], Stroke::new(self.style.tick_width, self.style.tick_color));
                     ui.painter()
-                        .rect_filled(rect, Rounding::same(9999.0), self.style.tick_color);
+                        .rect_filled(rect, Rounding::same(u8::MAX), self.style.tick_color);
                 }
             }
 
@@ -740,7 +741,7 @@ impl<'a, P: Param + ParamDetails> ParamSlider<'a, P> {
                     focus_rect = track_rect;
                 }
                 ui.painter()
-                    .rect_filled(track_rect, Rounding::same(9999.0), color);
+                    .rect_filled(track_rect, Rounding::same(u8::MAX), color);
             }
 
             // Indicator Fill
@@ -816,19 +817,19 @@ impl<'a, P: Param + ParamDetails> ParamSlider<'a, P> {
 
             if color.a() > 0 {
                 ui.painter()
-                    .rect_filled(fill_rect, Rounding::same(9999.0), color);
+                    .rect_filled(fill_rect, Rounding::same(u8::MAX), color);
             }
 
             if modulation_rect.area() > 1.0 && modulation_color.a() > 0 {
                 ui.painter()
-                    .rect_filled(modulation_rect, Rounding::same(9999.0), modulation_color);
+                    .rect_filled(modulation_rect, Rounding::same(u8::MAX), modulation_color);
             }
 
             // Selection
             if response.has_focus() {
                 let focus_stroke = ui.style().visuals.selection.stroke;
                 if !focus_stroke.is_empty() {
-                    ui.painter().rect_stroke(focus_rect, focus_rounding, focus_stroke);
+                    ui.painter().rect_stroke(focus_rect, focus_rounding, focus_stroke, StrokeKind::Middle);
                 }
             }            
 
@@ -866,12 +867,13 @@ impl<'a, P: Param + ParamDetails> ParamSlider<'a, P> {
                     knob_rect.width().min(knob_rect.height()) * self.style.knob_round_ratio * 0.5;
                 ui.painter().rect(
                     knob_rect,
-                    Rounding::same(radius),
+                    Rounding::same(radius.round() as u8),
                     color,
                     Stroke::new(
                         self.style.knob_outline_width * hover_scale,
                         self.style.knob_outline_color,
                     ),
+                    StrokeKind::Middle,
                 );
             }
 

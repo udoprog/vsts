@@ -36,17 +36,10 @@ use {
     };
 
 use nih_plug_egui::egui::{
-    Align2, Color32, FontData,
-    /*
-    epaint::{
-        PathShape,
-    },
-    */
-    //Shape,
-    //Stroke,
-    //Ui,
-    FontDefinitions, FontFamily, FontId, FontTweak, Painter, Pos2, Rect,
+    Align2, Color32, FontData, FontDefinitions, FontFamily, FontId, FontTweak, Painter, Pos2, Rect,
 };
+
+use std::sync::Arc;
 
 /// Stores a list of built-in Dingbats from various icon fonts
 /// These can be used with some painter using the IconDrawer attribute
@@ -238,48 +231,56 @@ impl Icons {
     /// Adds required Dingbat fonts to a FontDefinitions
     pub fn add_fonts(fonts: &mut FontDefinitions) {
         let name = "Icons"; //OneTrickIcons
-        fonts.font_data.insert(
-            name.to_owned(),
-            FontData::from_static(include_bytes!(
+
+        let data = Arc::new(FontData::from_static(include_bytes!(
                 "../assets/fonts/OneTrickIcons/OneTrickIcons.ttf"
             ))
             .tweak(FontTweak {
                 scale: 1.0,
                 y_offset_factor: 0.07,
                 ..Default::default()
-            }),
+            }));
+
+        fonts.font_data.insert(
+            name.to_owned(),
+            data,
         );
         fonts
             .families
             .insert(FontFamily::Name(name.into()), vec![name.to_owned()]);
 
         let name = "PluginIcons"; //PluginIcons
-        fonts.font_data.insert(
-            name.to_owned(),
-            FontData::from_static(include_bytes!(
+
+        let data = Arc::new(FontData::from_static(include_bytes!(
                 "../../../src/assets/fonts/PluginIcons/PluginIcons.ttf"
             ))
             .tweak(FontTweak {
                 scale: 1.0,
                 y_offset_factor: 0.0,
                 ..Default::default()
-            }),
+            }));
+
+        fonts.font_data.insert(
+            name.to_owned(),
+            data,
         );
         fonts
             .families
             .insert(FontFamily::Name(name.into()), vec![name.to_owned()]);
 
-        let name = "FontAwesome"; //FontAwesome
-        fonts.font_data.insert(
-            name.to_owned(),
-            FontData::from_static(include_bytes!(
+        let data = Arc::new(FontData::from_static(include_bytes!(
                 "../assets/fonts/Font-Awesome-6.x/webfonts/fa-solid-900.ttf"
             ))
             .tweak(FontTweak {
                 scale: 1.0,
                 y_offset_factor: 0.0,
                 ..Default::default()
-            }),
+            }));
+
+        let name = "FontAwesome"; //FontAwesome
+        fonts.font_data.insert(
+            name.to_owned(),
+            data,
         );
         fonts
             .families
