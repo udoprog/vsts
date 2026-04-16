@@ -25,9 +25,8 @@
     OneTrick KEYS.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-use onetrick_keys::OneTrickKeys;
 use nih_plug::prelude::nih_export_standalone;
+use onetrick_keys::OneTrickKeys;
 
 fn main() {
     nih_export_standalone::<OneTrickKeys>();

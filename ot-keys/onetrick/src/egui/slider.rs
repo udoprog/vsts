@@ -33,25 +33,22 @@ use nih_plug::params::{BoolParam, FloatParam, IntParam};
 use nih_plug::prelude::{Param, ParamSetter};
 use nih_plug_egui::egui::StrokeKind;
 use nih_plug_egui::egui::{
-    /*epaint::{
-        PathShape,
-    },*/
     output::CursorIcon,
     Color32,
+    CornerRadius,
+    Event,
+    EventFilter,
     Id,
+    Key,
     Pos2,
     Rect,
     Response,
-    CornerRadius as Rounding,
     Sense,
     //Shape,
     Stroke,
     Ui,
     Vec2,
     Widget,
-    Event,
-    EventFilter,
-    Key,
 };
 //use parking_lot::Mutex;
 
@@ -118,10 +115,10 @@ pub enum ParamSliderOrientation {
 pub struct ParamSliderStyle {
     /// Orientation of of this Slider
     pub orientation: ParamSliderOrientation,
-    
+
     /// Total length of the Widget
     pub length: f32,
-    
+
     /// Total width of the Widget
     pub width: f32,
 
@@ -378,7 +375,7 @@ impl<'a, P: Param + ParamDetails> ParamSlider<'a, P> {
         self.style.label_width = width;
         self
     }
-    
+
     /// Sets the label to only display the value, not the property name
     pub fn with_label_only_value(mut self) -> Self {
         self.style.label_only_value = true;
@@ -443,12 +440,14 @@ impl<'a, P: Param + ParamDetails> ParamSlider<'a, P> {
     fn increment_param(&self, next: bool, fine: bool) {
         if let Some(param) = self.param {
             let current_value = param.unmodulated_plain_value();
-            let new_value = if next {param.next_step(current_value, fine)} else {param.previous_step(current_value, fine)};
-            self.setter
-                .set_parameter(param, new_value);
+            let new_value = if next {
+                param.next_step(current_value, fine)
+            } else {
+                param.previous_step(current_value, fine)
+            };
+            self.setter.set_parameter(param, new_value);
         }
     }
-    
 
     fn can_cycle(&self) -> bool {
         if let Some(param) = self.param {
@@ -520,26 +519,25 @@ impl<'a, P: Param + ParamDetails> ParamSlider<'a, P> {
     }
 
     fn get_drag_normalized_start_value_memory(ui: &Ui) -> f32 {
-        ui.data(|r|r
-            .get_temp(*DRAG_NORMALIZED_START_VALUE_MEMORY_ID)
-            .unwrap_or(0.5))
+        ui.data(|r| {
+            r.get_temp(*DRAG_NORMALIZED_START_VALUE_MEMORY_ID)
+                .unwrap_or(0.5)
+        })
     }
 
     fn set_drag_normalized_start_value_memory(ui: &Ui, amount: f32) {
-        ui.data_mut(|r| { r
-            .insert_temp(*DRAG_NORMALIZED_START_VALUE_MEMORY_ID, amount);
+        ui.data_mut(|r| {
+            r.insert_temp(*DRAG_NORMALIZED_START_VALUE_MEMORY_ID, amount);
         });
     }
 
     fn get_drag_amount_memory(ui: &Ui) -> f32 {
-        ui.data(|r| r
-            .get_temp(*DRAG_AMOUNT_MEMORY_ID)
-            .unwrap_or(0.0))
+        ui.data(|r| r.get_temp(*DRAG_AMOUNT_MEMORY_ID).unwrap_or(0.0))
     }
 
     fn set_drag_amount_memory(ui: &Ui, amount: f32) {
-        ui.data_mut(|r| { r
-            .insert_temp(*DRAG_AMOUNT_MEMORY_ID, amount);
+        ui.data_mut(|r| {
+            r.insert_temp(*DRAG_AMOUNT_MEMORY_ID, amount);
         });
     }
 
@@ -549,11 +547,11 @@ impl<'a, P: Param + ParamDetails> ParamSlider<'a, P> {
          * can result in a missed drag... This may need to be fixed upstream.
          */
 
-         if response.clicked() {
+        if response.clicked() {
             response.request_focus();
-         }
+        }
 
-         if let Some(param) = self.param {
+        if let Some(param) = self.param {
             if response.drag_started() {
                 response.surrender_focus();
                 self.begin_drag();
@@ -569,20 +567,24 @@ impl<'a, P: Param + ParamDetails> ParamSlider<'a, P> {
                     ParamSliderOrientation::Vertical => CursorIcon::ResizeVertical,
                 };
 
-                ui.output_mut(|r| { r.cursor_icon = drag_cursor; } );
+                ui.output_mut(|r| {
+                    r.cursor_icon = drag_cursor;
+                });
                 if let Some(_click_pos) = response.interact_pointer_pos() {
-                    let fine = ui.input(|r|r.modifiers.shift);
+                    let fine = ui.input(|r| r.modifiers.shift);
                     self.perform_drag(ui, response.drag_delta(), fine);
                     response.mark_changed();
                 }
             }
             if response.drag_stopped() {
                 self.end_drag();
-                ui.output_mut(|r| { r.cursor_icon = CursorIcon::Default; } );
+                ui.output_mut(|r| {
+                    r.cursor_icon = CursorIcon::Default;
+                });
             }
 
             let should_reset =
-                response.double_clicked() || (response.clicked() && ui.input(|r|r.modifiers.ctrl));
+                response.double_clicked() || (response.clicked() && ui.input(|r| r.modifiers.ctrl));
             let can_cycle = self.can_cycle() && response.clicked();
             if should_reset || can_cycle {
                 let must_fake_drag = !response.dragged(); // APIs require begin_set_parameter/end_set_parameter calls
@@ -600,10 +602,18 @@ impl<'a, P: Param + ParamDetails> ParamSlider<'a, P> {
                 response.mark_changed();
             }
 
-            if response.has_focus() && ui.input(|i| i.modifiers.ctrl) { // Keyboard Input
+            if response.has_focus() && ui.input(|i| i.modifiers.ctrl) {
+                // Keyboard Input
                 ui.input(|r| {
                     for event in &r.events {
-                        if let Event::Key{key, pressed, modifiers, repeat, physical_key} = event {
+                        if let Event::Key {
+                            key,
+                            pressed,
+                            modifiers,
+                            repeat,
+                            physical_key,
+                        } = event
+                        {
                             if *pressed {
                                 let forward = match self.style.orientation {
                                     ParamSliderOrientation::Horizontal => match key {
@@ -667,7 +677,7 @@ impl<'a, P: Param + ParamDetails> ParamSlider<'a, P> {
                 slider_rect.shrink(slider_rect.width().min(slider_rect.height()) * 0.5);
 
             let mut focus_rect = track_rect;
-            let mut focus_rounding = Rounding::same(u8::MAX);
+            let mut focus_rounding = CornerRadius::same(u8::MAX);
 
             // Backing
             let color = self.style.bg_color;
@@ -683,7 +693,7 @@ impl<'a, P: Param + ParamDetails> ParamSlider<'a, P> {
                         }
                     };
                 }
-                let rounding = Rounding::same((self.style.width / 2.0) as u8); // Keep it nicely wrapped around the track
+                let rounding = CornerRadius::same((self.style.width / 2.0) as u8); // Keep it nicely wrapped around the track
                 ui.painter().rect_filled(bg_rect, rounding, color);
                 focus_rect = bg_rect;
                 focus_rounding = rounding;
@@ -728,8 +738,11 @@ impl<'a, P: Param + ParamDetails> ParamSlider<'a, P> {
                         ),
                     };
                     //ui.painter().line_segment([], Stroke::new(self.style.tick_width, self.style.tick_color));
-                    ui.painter()
-                        .rect_filled(rect, Rounding::same(u8::MAX), self.style.tick_color);
+                    ui.painter().rect_filled(
+                        rect,
+                        CornerRadius::same(u8::MAX),
+                        self.style.tick_color,
+                    );
                 }
             }
 
@@ -741,7 +754,7 @@ impl<'a, P: Param + ParamDetails> ParamSlider<'a, P> {
                     focus_rect = track_rect;
                 }
                 ui.painter()
-                    .rect_filled(track_rect, Rounding::same(u8::MAX), color);
+                    .rect_filled(track_rect, CornerRadius::same(u8::MAX), color);
             }
 
             // Indicator Fill
@@ -817,21 +830,29 @@ impl<'a, P: Param + ParamDetails> ParamSlider<'a, P> {
 
             if color.a() > 0 {
                 ui.painter()
-                    .rect_filled(fill_rect, Rounding::same(u8::MAX), color);
+                    .rect_filled(fill_rect, CornerRadius::same(u8::MAX), color);
             }
 
             if modulation_rect.area() > 1.0 && modulation_color.a() > 0 {
-                ui.painter()
-                    .rect_filled(modulation_rect, Rounding::same(u8::MAX), modulation_color);
+                ui.painter().rect_filled(
+                    modulation_rect,
+                    CornerRadius::same(u8::MAX),
+                    modulation_color,
+                );
             }
 
             // Selection
             if response.has_focus() {
                 let focus_stroke = ui.style().visuals.selection.stroke;
                 if !focus_stroke.is_empty() {
-                    ui.painter().rect_stroke(focus_rect, focus_rounding, focus_stroke, StrokeKind::Middle);
+                    ui.painter().rect_stroke(
+                        focus_rect,
+                        focus_rounding,
+                        focus_stroke,
+                        StrokeKind::Middle,
+                    );
                 }
-            }            
+            }
 
             // Knob
             let color = self.style.knob_color; //Color32::from_white_alpha(64);
@@ -867,7 +888,7 @@ impl<'a, P: Param + ParamDetails> ParamSlider<'a, P> {
                     knob_rect.width().min(knob_rect.height()) * self.style.knob_round_ratio * 0.5;
                 ui.painter().rect(
                     knob_rect,
-                    Rounding::same(radius.round() as u8),
+                    CornerRadius::same(radius.round() as u8),
                     color,
                     Stroke::new(
                         self.style.knob_outline_width * hover_scale,
@@ -876,12 +897,11 @@ impl<'a, P: Param + ParamDetails> ParamSlider<'a, P> {
                     StrokeKind::Middle,
                 );
             }
-
         }
     }
 
     fn value_ui(&self, ui: &mut Ui, slider_response: &Response) {
-        let is_interacting = self.is_interacting(slider_response) || slider_response.has_focus();;
+        let is_interacting = self.is_interacting(slider_response) || slider_response.has_focus();
         let text = if let Some(param) = self.param {
             if is_interacting || self.style.label_only_value {
                 param.to_string()
@@ -900,10 +920,10 @@ impl<'a, P: Param + ParamDetails> ParamSlider<'a, P> {
             self.style.label_style.clone()
         };
         label_style.width = Some(self.style.label_width);
-        
+
         ui.add_space(self.style.label_offset);
-        ui.horizontal(|ui|{
-            ui.add_space((slider_response.rect.width()-self.style.label_width)/2.0);
+        ui.horizontal(|ui| {
+            ui.add_space((slider_response.rect.width() - self.style.label_width) / 2.0);
             let label = Label::new(text).with_style(&label_style);
             ui.add(label);
         });
@@ -924,7 +944,17 @@ impl<P: Param + ParamDetails> Widget for ParamSlider<'_, P> {
 
             // Filter Navigation Keys
             let is_editing = response.has_focus() && ui.input(|i| i.modifiers.ctrl);
-            ui.memory_mut(|mem| mem.set_focus_lock_filter(response.id, EventFilter{horizontal_arrows:is_editing,vertical_arrows:is_editing,escape:true, ..Default::default()}));
+            ui.memory_mut(|mem| {
+                mem.set_focus_lock_filter(
+                    response.id,
+                    EventFilter {
+                        horizontal_arrows: is_editing,
+                        vertical_arrows: is_editing,
+                        escape: true,
+                        ..Default::default()
+                    },
+                )
+            });
 
             self.slider_ui(ui, &mut response);
             if self.draw_value {

@@ -26,8 +26,7 @@
 */
 
 use std::cell::RefCell;
-//use std::rc::Rc;
-use std::sync::atomic::{AtomicU8, AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 use std::sync::Arc;
 
 #[cfg(feature = "profile")]
@@ -35,39 +34,13 @@ use std::sync::atomic::AtomicI32;
 
 use nih_plug::prelude::*;
 
-// #[cfg(feature = "egui")]
-// use egui_extras::image::RetainedImage;
-
 #[cfg(feature = "egui")]
 use nih_plug_egui::{
     create_egui_editor,
     egui::{
-        epaint::{
-            Shadow,
-        },
-        style,
-        Margin,
-        //Align,
-        Align2,
-        Area,
-        CentralPanel,
-        Color32,
-        Context,
-        FontDefinitions,
-        FontFamily,
-        FontId,
-        Frame,
-        Id,
-        //LayerId,
-        //Layout,
-        Order,
-        pos2,
-        Rect,
-        CornerRadius as Rounding,
-        Sense,
-        Stroke,
-        vec2,
-        UiBuilder,
+        epaint::Shadow, pos2, style, vec2, Align2, Area, CentralPanel, Color32, Context,
+        CornerRadius, FontDefinitions, FontFamily, FontId, Frame, Id, Margin, Order, Rect, Sense,
+        Stroke, UiBuilder,
     },
     EguiState,
 };
@@ -88,7 +61,9 @@ const MAX_VOICES: usize = 16;
 
 macro_rules! for_each_voice_dsp {
     ($this:ident, $expression:expr) => {{
-        $this.dsp_voices.borrow_mut().for_each_voice(|voice|{ $expression(&mut *voice); })
+        $this.dsp_voices.borrow_mut().for_each_voice(|voice| {
+            $expression(&mut *voice);
+        })
     }};
 }
 
@@ -109,7 +84,6 @@ pub struct OneTrickKeys {
     dsp_voices: RefCell<OneTrickVoices<dsp::modules::DSP_Piano>>,
 
     param_global_sensitivity: usize,
-    //param_global_transpose: usize,
     piano_indicator: Arc<[AtomicU8; 16]>,
 
     #[cfg(feature = "profile")]
@@ -132,7 +106,7 @@ impl Default for OneTrickKeys {
         dsp_voices.for_each_voice(|voice| {
             params.append_dsp(voice, "");
         });
-        
+
         let param_global_sensitivity = params.append_float(
             FloatParam::new(
                 "MIDI Sensitivity",
@@ -148,21 +122,6 @@ impl Default for OneTrickKeys {
             })),
             "MIDI",
         );
-        // let param_global_transpose = params.append_float(
-        //     FloatParam::new(
-        //         "MIDI Transpose",
-        //         0.0,
-        //         FloatRange::Linear {
-        //             min: -12.0,
-        //             max: 12.0,
-        //         },
-        //     )
-        //     .with_unit("st")
-        //     .with_value_to_string(Arc::new(|v| {
-        //         format!("{value:.precision$}", precision = 1, value = v)
-        //     })),
-        //     "MIDI",
-        // );
 
         Self {
             //params: Arc::new(OneTrickPluginParams::default()),
@@ -175,8 +134,7 @@ impl Default for OneTrickKeys {
 
             param_global_sensitivity,
             //param_global_transpose,
-
-            piano_indicator: Arc::default(), //Arc::from([AtomicI32::new(0); 16]), // needs the copy trait
+            piano_indicator: Arc::default(),
 
             #[cfg(feature = "profile")]
             dsp_cost: Arc::new(AtomicI32::new(0)),
@@ -203,7 +161,7 @@ impl OneTrickKeys {
         style.override_font_id = Some(font_id);
         //style.override_text_style = Some(TextStyle::Body);
 
-        //style.widgets.noninteractive.bg_stroke = 
+        //style.widgets.noninteractive.bg_stroke =
         //    Stroke::new(2.0, palette.grey().alpha(0.666).to_color32());
 
         // Set the base Style
@@ -212,9 +170,14 @@ impl OneTrickKeys {
         // Tooltips and Popup Windows:
         style.visuals.window_fill = Color32::DARK_GRAY;
         style.visuals.window_stroke = Stroke::default();
-        style.visuals.popup_shadow = Shadow {offset: [0, 0], blur: 6, spread: 0, color: Color32::from_black_alpha(32)};
+        style.visuals.popup_shadow = Shadow {
+            offset: [0, 0],
+            blur: 6,
+            spread: 0,
+            color: Color32::from_black_alpha(32),
+        };
         style.visuals.override_text_color = Some(Color32::WHITE);
-        
+
         style.visuals.selection.stroke = Stroke::new(2.0, Color32::WHITE);
         ctx.set_style(style);
 
@@ -222,10 +185,8 @@ impl OneTrickKeys {
         ctx.set_fonts(fonts);
     }
 
-    fn set_internal_params(&mut self) {
-    }
+    fn set_internal_params(&mut self) {}
 }
-
 
 impl Plugin for OneTrickKeys {
     const NAME: &'static str = "OneTrick KEYS";
@@ -235,22 +196,20 @@ impl Plugin for OneTrickKeys {
 
     const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
-    const AUDIO_IO_LAYOUTS: &'static [AudioIOLayout] = &[
-        AudioIOLayout {
-            // Stereo
-            main_input_channels: NonZeroU32::new(0),
-            main_output_channels: NonZeroU32::new(NUM_CHANNELS),
-            names: PortNames {
-                layout: Some("Stereo"),
+    const AUDIO_IO_LAYOUTS: &'static [AudioIOLayout] = &[AudioIOLayout {
+        // Stereo
+        main_input_channels: NonZeroU32::new(0),
+        main_output_channels: NonZeroU32::new(NUM_CHANNELS),
+        names: PortNames {
+            layout: Some("Stereo"),
 
-                main_input: None,
-                main_output: Some("Output"),
-                aux_inputs: &[],
-                aux_outputs: &[],
-            },
-            ..AudioIOLayout::const_default()
+            main_input: None,
+            main_output: Some("Output"),
+            aux_inputs: &[],
+            aux_outputs: &[],
         },
-    ];
+        ..AudioIOLayout::const_default()
+    }];
 
     const MIDI_INPUT: MidiConfig = MidiConfig::MidiCCs; //Basic or MidiCCs
     const MIDI_OUTPUT: MidiConfig = MidiConfig::None;
@@ -384,18 +343,27 @@ impl Plugin for OneTrickKeys {
                                 velocity
                             };
 
-                            if self.dsp_voices.borrow_mut().note_on(note, velocity, voice_id) {
+                            if self
+                                .dsp_voices
+                                .borrow_mut()
+                                .note_on(note, velocity, voice_id)
+                            {
                                 self.dsp_output.borrow_mut().wake_up();
                             }
 
-                            self.dsp_output.borrow_mut().hold(self.dsp_voices.borrow().active_voice_count() > 0);
-
+                            self.dsp_output
+                                .borrow_mut()
+                                .hold(self.dsp_voices.borrow().active_voice_count() > 0);
 
                             let voices = self.dsp_voices.borrow();
                             for (index, indicator) in self.piano_indicator.iter().enumerate() {
                                 let note = if index < voices.active_voice_count() {
-                                    voices.active_voices()[index].get_last_note_u8().unwrap_or(0)
-                                } else { 0 };
+                                    voices.active_voices()[index]
+                                        .get_last_note_u8()
+                                        .unwrap_or(0)
+                                } else {
+                                    0
+                                };
                                 indicator.store(note, Ordering::Relaxed);
                             }
                             //self.piano_indicator[0].store(self.dsp_voices.borrow().active_voice_count() as u8, Ordering::Relaxed);
@@ -411,12 +379,18 @@ impl Plugin for OneTrickKeys {
                         self.dsp_voices.borrow_mut().note_off(note, voice_id);
                         let voices = self.dsp_voices.borrow();
 
-                        self.dsp_output.borrow_mut().hold(self.dsp_voices.borrow().active_voice_count() > 0);
+                        self.dsp_output
+                            .borrow_mut()
+                            .hold(self.dsp_voices.borrow().active_voice_count() > 0);
 
                         for (index, indicator) in self.piano_indicator.iter().enumerate() {
                             let note = if index < voices.active_voice_count() {
-                                voices.active_voices()[index].get_last_note_u8().unwrap_or(0)
-                            } else { 0 };
+                                voices.active_voices()[index]
+                                    .get_last_note_u8()
+                                    .unwrap_or(0)
+                            } else {
+                                0
+                            };
                             indicator.store(note, Ordering::Relaxed);
                         }
                     }
@@ -437,14 +411,6 @@ impl Plugin for OneTrickKeys {
 
                 //self.accum_buffer.clear();
                 self.accum_buffer.buffer.clear_frames(frames);
-
-                // let pitch_shift = if let Some(p) =
-                //     self.params.param_float_at(self.param_global_transpose)
-                // {
-                //     p.value()
-                // } else {
-                //     0.0
-                // };
 
                 for_each_voice_dsp!(self, &mut |dsp: &mut dyn OneTrickDSPGeneral| {
                     // Compute Voice:
@@ -491,37 +457,88 @@ impl Plugin for OneTrickKeys {
         //async_executor.execute_background((||{nih_log!("Hello from a Background Thread")})());
 
         let params = self.params.clone();
-        let mut preset_manager = PresetManager::new("OneTrick KEYS").with_excluded_params(&["Sustain Lock"]);
+        let mut preset_manager =
+            PresetManager::new("OneTrick KEYS").with_excluded_params(&["Sustain Lock"]);
         let default_preset = Preset::from_param_defaults("Basic Keys", &params);
         preset_manager.add_factory(default_preset);
-        preset_manager.add_factory_string("Grand Piano", include_str!("assets/presets/Grand Piano.preset"));
-        preset_manager.add_factory_string("Concert Hall", include_str!("assets/presets/Concert Hall.preset"));
+        preset_manager.add_factory_string(
+            "Grand Piano",
+            include_str!("assets/presets/Grand Piano.preset"),
+        );
+        preset_manager.add_factory_string(
+            "Concert Hall",
+            include_str!("assets/presets/Concert Hall.preset"),
+        );
         preset_manager.add_factory_string("Honky", include_str!("assets/presets/Honky.preset"));
-        preset_manager.add_factory_string("Lofi Hiphop Radio", include_str!("assets/presets/Lofi Hiphop Radio.preset"));
-        preset_manager.add_factory_string("Cassette Memories", include_str!("assets/presets/Cassette Memories.preset"));
-        preset_manager.add_factory_string("Murder House", include_str!("assets/presets/Murder House.preset"));
-        preset_manager.add_factory_string("Defunct Studio", include_str!("assets/presets/Defunct Studio.preset"));
-        preset_manager.add_factory_string("Distant Memory", include_str!("assets/presets/Distant Memory.preset"));
-        preset_manager.add_factory_string("Home Recording", include_str!("assets/presets/Home Recording.preset"));
-        preset_manager.add_factory_string("Jazz Bar", include_str!("assets/presets/Jazz Bar.preset"));
-        preset_manager.add_factory_string("Auditorium", include_str!("assets/presets/Auditorium.preset"));
-        preset_manager.add_factory_string("Uplifting", include_str!("assets/presets/Uplifting.preset"));
-        preset_manager.add_factory_string("Regretful", include_str!("assets/presets/Regretful.preset"));
-        preset_manager.add_factory_string("Monogram", include_str!("assets/presets/Monogram.preset"));
-        preset_manager.add_factory_string("Cute Toy", include_str!("assets/presets/Cute Toy.preset"));
-        preset_manager.add_factory_string("Fireside", include_str!("assets/presets/Fireside.preset"));
-        preset_manager.add_factory_string("Lost at Sea", include_str!("assets/presets/Lost at Sea.preset"));
-        preset_manager.add_factory_string("Mournful", include_str!("assets/presets/Mournful.preset"));
-        preset_manager.add_factory_string("Peacetime", include_str!("assets/presets/Peacetime.preset"));
-        preset_manager.add_factory_string("So-So Sorry", include_str!("assets/presets/So-So Sorry.preset"));
-        preset_manager.add_factory_string("Upright Citizen", include_str!("assets/presets/Upright Citizen.preset"));
-        preset_manager.add_factory_string("Midsummer Sonata", include_str!("assets/presets/Midsummer Sonata.preset"));
-        preset_manager.add_factory_string("Autumn Rain", include_str!("assets/presets/Autumn Rain.preset"));
-        preset_manager.add_factory_string("Cold of Winter", include_str!("assets/presets/Cold of Winter.preset"));
+        preset_manager.add_factory_string(
+            "Lofi Hiphop Radio",
+            include_str!("assets/presets/Lofi Hiphop Radio.preset"),
+        );
+        preset_manager.add_factory_string(
+            "Cassette Memories",
+            include_str!("assets/presets/Cassette Memories.preset"),
+        );
+        preset_manager.add_factory_string(
+            "Murder House",
+            include_str!("assets/presets/Murder House.preset"),
+        );
+        preset_manager.add_factory_string(
+            "Defunct Studio",
+            include_str!("assets/presets/Defunct Studio.preset"),
+        );
+        preset_manager.add_factory_string(
+            "Distant Memory",
+            include_str!("assets/presets/Distant Memory.preset"),
+        );
+        preset_manager.add_factory_string(
+            "Home Recording",
+            include_str!("assets/presets/Home Recording.preset"),
+        );
+        preset_manager
+            .add_factory_string("Jazz Bar", include_str!("assets/presets/Jazz Bar.preset"));
+        preset_manager.add_factory_string(
+            "Auditorium",
+            include_str!("assets/presets/Auditorium.preset"),
+        );
+        preset_manager
+            .add_factory_string("Uplifting", include_str!("assets/presets/Uplifting.preset"));
+        preset_manager
+            .add_factory_string("Regretful", include_str!("assets/presets/Regretful.preset"));
+        preset_manager
+            .add_factory_string("Monogram", include_str!("assets/presets/Monogram.preset"));
+        preset_manager
+            .add_factory_string("Cute Toy", include_str!("assets/presets/Cute Toy.preset"));
+        preset_manager
+            .add_factory_string("Fireside", include_str!("assets/presets/Fireside.preset"));
+        preset_manager.add_factory_string(
+            "Lost at Sea",
+            include_str!("assets/presets/Lost at Sea.preset"),
+        );
+        preset_manager
+            .add_factory_string("Mournful", include_str!("assets/presets/Mournful.preset"));
+        preset_manager
+            .add_factory_string("Peacetime", include_str!("assets/presets/Peacetime.preset"));
+        preset_manager.add_factory_string(
+            "So-So Sorry",
+            include_str!("assets/presets/So-So Sorry.preset"),
+        );
+        preset_manager.add_factory_string(
+            "Upright Citizen",
+            include_str!("assets/presets/Upright Citizen.preset"),
+        );
+        preset_manager.add_factory_string(
+            "Midsummer Sonata",
+            include_str!("assets/presets/Midsummer Sonata.preset"),
+        );
+        preset_manager.add_factory_string(
+            "Autumn Rain",
+            include_str!("assets/presets/Autumn Rain.preset"),
+        );
+        preset_manager.add_factory_string(
+            "Cold of Winter",
+            include_str!("assets/presets/Cold of Winter.preset"),
+        );
         preset_manager.add_factory_string("Dirge", include_str!("assets/presets/Dirge.preset"));
-        
-        
-        
 
         preset_manager.refresh();
 
@@ -552,8 +569,6 @@ impl Plugin for OneTrickKeys {
         subheading_style.color = palette.white().into();
         subheading_style.bg_color = Color32::TRANSPARENT;
         subheading_style.shadow = None;
-
-
 
         let separator_style = SeparatorStyle {
             width: 2.0,
@@ -640,33 +655,19 @@ impl Plugin for OneTrickKeys {
                         .apply_with_automation(&params, setter);
 
                     // Stress applying a preset
-                    Preset::from_random_values(&params)
-                        .apply(&params, setter);
+                    Preset::from_random_values(&params).apply(&params, setter);
                 }
 
-                //ctx.set_debug_on_hover(true);
                 let preset_manager = state;
-
-                //update()
-                //let window_rect = ctx.available_rect();
 
                 #[cfg(feature = "profile")]
                 let dsp_cost = dsp_cost.load(Ordering::Relaxed) as f32 * 0.00001; // Scale for 5 decimals of precision
 
-                //let zoom_amount = 0.2;
-                //let zoom_time = 0.150;
-                //let indicator_raw = piano_indicator[0].load(Ordering::Relaxed);
-
-                /*
-                let _piano_indicator_zoom = 1.0
-                    + ctx.animate_bool_with_time(
-                        piano_anim_id,
-                        indicator_raw,
-                        if indicator_raw { 0.0 } else { zoom_time },
-                    ) * zoom_amount;
-                */
-                let show_credits_amount =
-                    ctx.animate_bool_with_time(credits_anim_id, show_credits.load(Ordering::Relaxed), 0.300);
+                let show_credits_amount = ctx.animate_bool_with_time(
+                    credits_anim_id,
+                    show_credits.load(Ordering::Relaxed),
+                    0.300,
+                );
 
                 if show_credits_amount > 0.0 {
                     Area::new("credits_area".into())
@@ -708,8 +709,7 @@ impl Plugin for OneTrickKeys {
                                     if ui
                                         .allocate_response(
                                             available_size,
-                                            Sense::click()
-                                            // Sense{click:true, drag:false, focusable:false},
+                                            Sense::click(), // Sense{click:true, drag:false, focusable:false},
                                         )
                                         .clicked()
                                     {
@@ -736,7 +736,7 @@ impl Plugin for OneTrickKeys {
 
                         ui.painter().rect_filled(
                             Rect::from_min_max(pos2(0.0, 0.0), pos2(415.0, header_height)),
-                            Rounding::ZERO,
+                            CornerRadius::ZERO,
                             palette.white().brightness(0.05).to_color32(),
                         );
 
@@ -747,10 +747,13 @@ impl Plugin for OneTrickKeys {
                                 active.push(note);
                             }
                         }
-                        let piano_rect = Rect::from_min_size(pos2(30.0, ui.available_height()-60.0), vec2(890.0, 60.0));
+                        let piano_rect = Rect::from_min_size(
+                            pos2(30.0, ui.available_height() - 60.0),
+                            vec2(890.0, 60.0),
+                        );
                         ui.painter().rect_filled(
                             piano_rect.expand(2.0),
-                            Rounding::same(2),
+                            CornerRadius::same(2),
                             palette.black().to_color32(),
                         );
                         ui.painter().midi_keyboard(
@@ -760,15 +763,16 @@ impl Plugin for OneTrickKeys {
                                 black_color: palette.black().to_color32(),
                                 white_color: palette.white().to_color32(),
                             },
-                            MidiNote::A0 as u8, MidiNote::C8 as u8,
+                            MidiNote::A0 as u8,
+                            MidiNote::C8 as u8,
                             active.as_slice(),
                         );
-        
+
                         ui.painter().parallelograms(
                             Rect::from_min_size(pos2(325.0, 0.0), vec2(220.0, header_height)),
                             1.0,
                             &[
-                                //palette.color(0).shade(1).to_color32(),                                
+                                //palette.color(0).shade(1).to_color32(),
                                 palette.white().to_color32(),
                                 palette.black().to_color32(),
                                 palette.white().to_color32(),
@@ -777,21 +781,26 @@ impl Plugin for OneTrickKeys {
                                 //palette.color(0).shade(1).to_color32(),
                             ],
                         );
-                        let hack_height = header_height*0.63;
+                        let hack_height = header_height * 0.63;
                         ui.painter().parallelograms(
-                            Rect::from_min_size(pos2(325.0, hack_height), vec2(220.0-hack_height, header_height-hack_height)),
+                            Rect::from_min_size(
+                                pos2(325.0, hack_height),
+                                vec2(220.0 - hack_height, header_height - hack_height),
+                            ),
                             1.0,
-                            &[
-                                palette.white().to_color32(),
-                            ],
+                            &[palette.white().to_color32()],
                         );
-
 
                         ui.set_width(ui.available_width());
 
-                        let panel_rounding = Rounding::same(15);
+                        let panel_rounding = CornerRadius::same(15);
                         //let panel_shadow = Shadow::small_light();
-                        let panel_shadow = Shadow {offset: [0, 0], blur: 24, spread: 0, color: Color32::from_black_alpha(24)};
+                        let panel_shadow = Shadow {
+                            offset: [0, 0],
+                            blur: 24,
+                            spread: 0,
+                            color: Color32::from_black_alpha(24),
+                        };
 
                         ui.horizontal(|ui| {
                             // =========================================
@@ -804,472 +813,562 @@ impl Plugin for OneTrickKeys {
                                 .fill(Color32::TRANSPARENT)
                                 //.stroke(Stroke::new(1.0, palette.black()))
                                 .show(ui, |ui| {
-                                ui.vertical(|ui| { // MAIN
-                                    ui.set_width(75.0*8.0);
-                                    ui.set_height(660.0);
-                                    ui.add_space(header_height);
-                                    /*
-                                    ui.vertical_centered(|ui| {
-                                        ui.add(
-                                            Label::new("Kit").with_style(&heading_style),
-                                        );
-                                    });
-                                    ui.add_space(5.0);
-                                    */
-                                    let center_offset_x = 45.0;
-                                    let spacing_y = 15.0;
-                                    ui.horizontal(|ui| {
-                                        let justify_spacing_x = 20.0; //22.0;
-                                        ui.spacing_mut().item_spacing = vec2(justify_spacing_x, spacing_y);
+                                    ui.vertical(|ui| {
+                                        // MAIN
+                                        ui.set_width(75.0 * 8.0);
+                                        ui.set_height(660.0);
+                                        ui.add_space(header_height);
+                                        /*
+                                        ui.vertical_centered(|ui| {
+                                            ui.add(
+                                                Label::new("Kit").with_style(&heading_style),
+                                            );
+                                        });
+                                        ui.add_space(5.0);
+                                        */
+                                        let center_offset_x = 45.0;
+                                        let spacing_y = 15.0;
+                                        ui.horizontal(|ui| {
+                                            let justify_spacing_x = 20.0; //22.0;
+                                            ui.spacing_mut().item_spacing =
+                                                vec2(justify_spacing_x, spacing_y);
 
-                                        ui.set_height(232.0);
+                                            ui.set_height(232.0);
+                                            ui.vertical(|ui| {
+                                                ui.horizontal(|ui| {
+                                                    ui.add_space(center_offset_x * 1.25);
+                                                    ui.add(
+                                                        Label::new("Mix")
+                                                            .with_style(&subheading_style),
+                                                    );
+                                                });
+                                                ui.horizontal(|ui| {
+                                                    ui.add_space(center_offset_x - 35.0);
+                                                    ui.add(
+                                                        ParamKnob::for_param(
+                                                            params.param_float("Mix Gain"),
+                                                            setter,
+                                                        )
+                                                        .with_label("Gain")
+                                                        .with_style(&knob_style_5),
+                                                    );
+                                                    ui.add(
+                                                        ParamKnob::for_param(
+                                                            params.param_float("Mix Saturation"),
+                                                            setter,
+                                                        )
+                                                        .with_label("Saturation")
+                                                        .with_style(&knob_style_5),
+                                                    );
+                                                });
+                                                ui.horizontal(|ui| {
+                                                    ui.add_space(center_offset_x - 25.0);
+                                                    ui.add(
+                                                        ParamSlider::for_param(
+                                                            params.param_float("Mix Pan"),
+                                                            setter,
+                                                        )
+                                                        .with_label("Pan")
+                                                        .with_style(&slider_style_5)
+                                                        .with_indicator_from_center()
+                                                        .with_orientation(
+                                                            ParamSliderOrientation::Horizontal,
+                                                        )
+                                                        .with_length(140.0)
+                                                        .with_label_width(70.0),
+                                                    );
+                                                });
+                                            });
+                                            ui.add(Separator::new().with_style(&separator_style));
+                                            ui.vertical(|ui| {
+                                                ui.horizontal(|ui| {
+                                                    ui.add_space(center_offset_x);
+                                                    ui.add(
+                                                        Label::new("Strings")
+                                                            .with_style(&subheading_style),
+                                                    );
+                                                });
+                                                ui.horizontal(|ui| {
+                                                    ui.add_space(center_offset_x);
+                                                    ui.add(
+                                                        ParamKnob::for_param(
+                                                            params
+                                                                .param_float("Strings Brightness"),
+                                                            setter,
+                                                        )
+                                                        .with_label("Brightness")
+                                                        .with_style(&knob_style_3),
+                                                    );
+                                                });
+                                                ui.horizontal(|ui| {
+                                                    ui.add(
+                                                        ParamKnob::for_param(
+                                                            params.param_float("Strings In Tune"),
+                                                            setter,
+                                                        )
+                                                        .with_label("In Tune")
+                                                        .with_style(&knob_style_3),
+                                                    );
+                                                    ui.add(
+                                                        ParamKnob::for_param(
+                                                            params.param_float("Strings Detuned"),
+                                                            setter,
+                                                        )
+                                                        .with_label("Detuned")
+                                                        .with_style(&knob_style_3),
+                                                    );
+                                                });
+                                            });
+
+                                            ui.add(Separator::new().with_style(&separator_style));
+
+                                            ui.vertical(|ui| {
+                                                ui.horizontal(|ui| {
+                                                    //ui.add_space(center_offset_x);
+                                                    ui.add(
+                                                        Label::new("Body")
+                                                            .with_style(&subheading_style),
+                                                    );
+                                                });
+                                                ui.horizontal(|ui| {
+                                                    //ui.add_space(center_offset_x);
+                                                    ui.add(
+                                                        ParamKnob::for_param(
+                                                            params.param_float("Body Size"),
+                                                            setter,
+                                                        )
+                                                        .with_label("Size")
+                                                        .with_style(&knob_style_4),
+                                                    );
+                                                });
+                                                ui.horizontal(|ui| {
+                                                    //ui.add_space(center_offset_x);
+                                                    ui.add(
+                                                        ParamKnob::for_param(
+                                                            params.param_float("Body Damp"),
+                                                            setter,
+                                                        )
+                                                        .with_label("Damp")
+                                                        .with_style(&knob_style_4),
+                                                    );
+                                                });
+                                            });
+                                        });
+
+                                        ui.set_width(910.0);
+
+                                        ui.add_space(20.0);
                                         ui.vertical(|ui| {
-                                            ui.horizontal(|ui| {
-                                                ui.add_space(center_offset_x*1.25);
-                                                ui.add(Label::new("Mix").with_style(&subheading_style));
-                                            });
-                                            ui.horizontal(|ui| {
-                                                ui.add_space(center_offset_x-35.0);
-                                                ui.add(
-                                                    ParamKnob::for_param(
-                                                        params.param_float("Mix Gain"),
-                                                        setter,
-                                                    )
-                                                    .with_label("Gain")
-                                                    .with_style(&knob_style_5),
-                                                );
-                                                ui.add(
-                                                    ParamKnob::for_param(
-                                                        params.param_float("Mix Saturation"),
-                                                        setter,
-                                                    )
-                                                    .with_label("Saturation")
-                                                    .with_style(&knob_style_5),
-                                                );                                            
-                                            });
-                                            ui.horizontal(|ui| {
-                                                ui.add_space(center_offset_x-25.0);
-                                                ui.add(
-                                                    ParamSlider::for_param(
-                                                        params.param_float("Mix Pan"),
-                                                        setter,
-                                                    )
-                                                    .with_label("Pan")
-                                                    .with_style(&slider_style_5)
-                                                    .with_indicator_from_center()
-                                                    .with_orientation(ParamSliderOrientation::Horizontal)
-                                                    .with_length(140.0)
-                                                    .with_label_width(70.0),
-                                                );
-                                            });
+                                            ui.set_width(525.0);
+                                            ui.add(
+                                                Separator::new()
+                                                    .with_style(&separator_style)
+                                                    .with_orientation(
+                                                        SeparatorOrientation::Horizontal,
+                                                    ),
+                                            );
                                         });
-                                        ui.add(Separator::new().with_style(&separator_style));
-                                        ui.vertical(|ui| {
-                                            ui.horizontal(|ui| {
-                                                ui.add_space(center_offset_x);
-                                                ui.add(Label::new("Strings").with_style(&subheading_style));
-                                            });
-                                            ui.horizontal(|ui| {
-                                                ui.add_space(center_offset_x);
-                                                ui.add(
-                                                    ParamKnob::for_param(
-                                                        params.param_float("Strings Brightness"),
-                                                        setter,
-                                                    )
-                                                    .with_label("Brightness")
-                                                    .with_style(&knob_style_3),
-                                                );
-                                            });
-                                            ui.horizontal(|ui| {
-                                                ui.add(
-                                                    ParamKnob::for_param(
-                                                        params.param_float("Strings In Tune"),
-                                                        setter,
-                                                    )
-                                                    .with_label("In Tune")
-                                                    .with_style(&knob_style_3),
-                                                );
-                                                ui.add(
-                                                    ParamKnob::for_param(
-                                                        params.param_float("Strings Detuned"),
-                                                        setter,
-                                                    )
-                                                    .with_label("Detuned")
-                                                    .with_style(&knob_style_3),
-                                                );
-                                            });
+                                        ui.add_space(20.0);
 
-                                        });
+                                        ui.horizontal(|ui| {
+                                            let justify_spacing_x = 20.0; //22.0;
+                                            ui.spacing_mut().item_spacing =
+                                                vec2(justify_spacing_x, spacing_y);
 
-                                        ui.add(Separator::new().with_style(&separator_style));
-
-                                        ui.vertical(|ui| {
-                                            ui.horizontal(|ui| {
-                                                //ui.add_space(center_offset_x);
-                                                ui.add(Label::new("Body").with_style(&subheading_style));
-                                            });
-                                            ui.horizontal(|ui| {
-                                                //ui.add_space(center_offset_x);
-                                                ui.add(
-                                                    ParamKnob::for_param(
-                                                        params.param_float("Body Size"),
-                                                        setter,
-                                                    )
-                                                    .with_label("Size")
-                                                    .with_style(&knob_style_4),
-                                                );
-                                            });
-                                            ui.horizontal(|ui| {
-                                                //ui.add_space(center_offset_x);
-                                                ui.add(
-                                                    ParamKnob::for_param(
-                                                        params.param_float("Body Damp"),
-                                                        setter,
-                                                    )
-                                                    .with_label("Damp")
-                                                    .with_style(&knob_style_4),
-                                                );
-
-                                            });
-                                        });
-                                    });
-
-                                    ui.set_width(910.0);
-
-                                    ui.add_space(20.0);
-                                    ui.vertical(|ui|{
-                                        ui.set_width(525.0);
-                                        ui.add(Separator::new()
-                                            .with_style(&separator_style)
-                                            .with_orientation(SeparatorOrientation::Horizontal));
-                                        });
-                                    ui.add_space(20.0);
-                                    
-                                    ui.horizontal(|ui| {
-                                        let justify_spacing_x = 20.0; //22.0;
-                                        ui.spacing_mut().item_spacing = vec2(justify_spacing_x, spacing_y);
-
-                                        ui.vertical(|ui| {
-                                            ui.horizontal(|ui| {
-                                                ui.add_space(center_offset_x);
-                                                ui.add(Label::new("Reverb").with_style(&subheading_style));
-                                            });
-                                            ui.horizontal(|ui| {
-                                                ui.add(
-                                                    ParamKnob::for_param(
-                                                        params.param_float("Reverb Amount"),
-                                                        setter,
-                                                    )
-                                                    .with_label("Amount")
-                                                    .with_style(&knob_style_4),
-                                                );
-                                                ui.add(
-                                                    ParamKnob::for_param(
-                                                        params.param_float("Reverb Size"),
-                                                        setter,
-                                                    )
-                                                    .with_label("Size")
-                                                    .with_style(&knob_style_4),
-                                                );
-                                            });
-                                            ui.horizontal(|ui| {
-                                                ui.add(
-                                                    ParamKnob::for_param(
-                                                        params.param_float("Reverb Damp"),
-                                                        setter,
-                                                    )
-                                                    .with_label("Damp")
-                                                    .with_style(&knob_style_4),
-                                                );
-                                                ui.add(
-                                                    ParamKnob::for_param(
-                                                        params.param_float("Reverb Highpass"),
-                                                        setter,
-                                                    )
-                                                    .with_label("Highpass")
-                                                    .with_style(&knob_style_4),
-                                                );
+                                            ui.vertical(|ui| {
+                                                ui.horizontal(|ui| {
+                                                    ui.add_space(center_offset_x);
+                                                    ui.add(
+                                                        Label::new("Reverb")
+                                                            .with_style(&subheading_style),
+                                                    );
+                                                });
+                                                ui.horizontal(|ui| {
+                                                    ui.add(
+                                                        ParamKnob::for_param(
+                                                            params.param_float("Reverb Amount"),
+                                                            setter,
+                                                        )
+                                                        .with_label("Amount")
+                                                        .with_style(&knob_style_4),
+                                                    );
+                                                    ui.add(
+                                                        ParamKnob::for_param(
+                                                            params.param_float("Reverb Size"),
+                                                            setter,
+                                                        )
+                                                        .with_label("Size")
+                                                        .with_style(&knob_style_4),
+                                                    );
+                                                });
+                                                ui.horizontal(|ui| {
+                                                    ui.add(
+                                                        ParamKnob::for_param(
+                                                            params.param_float("Reverb Damp"),
+                                                            setter,
+                                                        )
+                                                        .with_label("Damp")
+                                                        .with_style(&knob_style_4),
+                                                    );
+                                                    ui.add(
+                                                        ParamKnob::for_param(
+                                                            params.param_float("Reverb Highpass"),
+                                                            setter,
+                                                        )
+                                                        .with_label("Highpass")
+                                                        .with_style(&knob_style_4),
+                                                    );
+                                                });
                                             });
 
-                                        });
+                                            ui.add(Separator::new().with_style(&separator_style));
 
-                                        ui.add(Separator::new().with_style(&separator_style));
-
-                                        ui.vertical(|ui| {
-                                            ui.horizontal(|ui| {
-                                                ui.add_space(center_offset_x*2.0);
-                                                ui.add(Label::new("Media").with_style(&subheading_style));
-                                            });
-                                            ui.horizontal(|ui| {
-                                                //ui.add_space(center_offset_x);
-                                                ui.add(
-                                                    ParamSlider::for_param(
-                                                        params.param_int("Media Noise Type"),
-                                                        setter,
-                                                    )
-                                                    .with_label("Format")
-                                                    .with_style(&slider_style_1)
-                                                    .with_label_only_value()
-                                                    .with_tick_count(2)
-                                                    .without_fill(),
-                                                );
-                                                ui.add(
-                                                    ParamKnob::for_param(
-                                                        params.param_float("Media Noise Amount"),
-                                                        setter,
-                                                    )
-                                                    .with_label("Noise")
-                                                    .with_style(&knob_style_1),
-                                                );
-                                                ui.add(
-                                                    ParamSlider::for_param(
-                                                        params.param_float("Media Mono"),
-                                                        setter,
-                                                    )
-                                                    .with_label("Mono")
-                                                    .with_style(&slider_style_1),
-                                                );
-    
-                                            });
-                                            ui.horizontal(|ui| {
-                                                ui.add(
-                                                    ParamKnob::for_param(
-                                                        params.param_float("Media Flutter"),
-                                                        setter,
-                                                    )
-                                                    .with_label("Flutter")
-                                                    .with_style(&knob_style_1),
-                                                );
-                                                ui.add(
-                                                    ParamKnob::for_param(
-                                                        params.param_float("Media Speed"),
-                                                        setter,
-                                                    )
-                                                    .with_label("Speed")
-                                                    .with_style(&knob_style_1),
-                                                );
-                                                ui.add(
-                                                    ParamKnob::for_param(
-                                                        params.param_float("Media Shape"),
-                                                        setter,
-                                                    )
-                                                    .with_label("Shape")
-                                                    .with_style(&knob_style_1),
-                                                );
-    
-                                            });
-                                        });
-
-                                        ui.add(Separator::new().with_style(&separator_style));
-
-                                        ui.vertical(|ui| {
-                                            ui.horizontal(|ui| {
-                                                ui.add_space(center_offset_x);
-                                                ui.add(Label::new("Sampler").with_style(&subheading_style));
-                                            });
-                                            ui.horizontal(|ui| {
-
-                                                ui.add(
-                                                    ParamKnob::for_param(
-                                                        params.param_float("Sampler Samplerate"),
-                                                        setter,
-                                                    )
-                                                    .with_label("Samplerate")
-                                                    .with_style(&knob_style_2),
-                                                );
-                                                ui.add(
-                                                    ParamKnob::for_param(
-                                                        params.param_int("Sampler Bits"),
-                                                        setter,
-                                                    )
-                                                    .with_label("Bits")
-                                                    .with_style(&knob_style_2)
-                                                    .with_indicator_style(ParamKnobIndicatorStyle::Dots)
-                                                    .with_indicator_count(9),
-                                                );
-                                            });
-                                            ui.horizontal(|ui| {
-                                                ui.add(
-                                                    ParamKnob::for_param(
-                                                        params.param_float("Sampler Highpass"),
-                                                        setter,
-                                                    )
-                                                    .with_label("Low Cut")
-                                                    .with_style(&knob_style_2),
-                                                );
-                                                ui.add(
-                                                    ParamKnob::for_param(
-                                                        params.param_float("Sampler Lowpass"),
-                                                        setter,
-                                                    )
-                                                    .with_label("High Cut")
-                                                    .with_style(&knob_style_2)
-                                                    .with_indicator_from_end(),
-                                                );
-                                            });
-                                        });
-
-                                        ui.add(Separator::new().with_style(&separator_style));
-
-                                        ui.vertical(|ui| {
-                                            ui.horizontal(|ui| {
-                                                ui.add_space(center_offset_x);
-                                                ui.add(Label::new("MIDI").with_style(&subheading_style));
-                                            });
-                                            ui.horizontal(|ui| {
-                                                ui.add_space(center_offset_x);
-                                                ui.add(
-                                                    ParamKnob::for_param(
-                                                        params.param_float("MIDI Sensitivity"),
-                                                        setter,
-                                                    )
-                                                    .with_label("Sensitivity")
-                                                    .with_style(&knob_style_5),
-                                                );
-                                            });
-                                            ui.horizontal(|ui| {
-                                                ui.add(
-                                                    ParamSlider::for_param(
-                                                        params.param_int("MIDI Bend Range"),
-                                                        setter,
-                                                    )
-                                                    .with_label("Bend Range")
-                                                    .with_style(&slider_style_5),
-                                                );
-                                                ui.add(
-                                                    ParamSlider::for_param(
-                                                        params.param_bool("MIDI Sustain Lock"),
-                                                        setter,
-                                                    )
-                                                    .with_label("Sustain Lock")
-                                                    .with_style(&slider_style_5),
-                                                );
-                                            });
-                                        });
-                                    });
-                                });
-                            });
-                            
-                            //ui.add(Separator::new().with_style(&separator_style));
-
-                            // ============================================
-                            // ============== GLOBALS PANELS ==============
-                            // ============================================
-                            ui.allocate_new_ui(UiBuilder::new().max_rect(Rect::from_min_size(pos2(560.0, 10.0), vec2(380.0, 500.0))), |ui| {
-                                Frame::new() // Global Panel Wrapper
-                                    /*
-                                    .outer_margin(Margin::same(0.0))
-                                    .inner_margin(Margin::same(20.0))
-                                    .corner_radius(panel_rounding)
-                                    .fill(palette.white().into())
-                                    .stroke(Stroke::new(2.0, palette.black()))
-                                    */
-                                    .show(ui, |ui| {
-
-                                    let frame_outer_margin = Margin {
-                                        top:5,
-                                        ..Default::default()
-                                    };
-                                    //let frame_inner_margin = Margin::same(10.0);
-                                    let frame_inner_margin = Margin{left: 0, right: 0, top: 5, bottom: 15};
-                                    let subframe_inner_margin = Margin::same(10);
-                                                                    
-                                    //ui.set_max_width(75.0*5.0+30.0);
-                                    ui.vertical_centered(|ui| {
-                                        // ===========================================
-                                        // ============== PRESETS PANEL ==============
-                                        // ===========================================
-                                        Frame::new()
-                                            .outer_margin(frame_outer_margin)
-                                            .inner_margin(frame_inner_margin)
-                                            //.fill(palette.color(6).shade(1).into())
-                                            .fill(palette.white().brightness(0.8).into())
-                                            .corner_radius(panel_rounding)
-                                            .shadow(panel_shadow)
-                                            .show(ui, |ui| {
-
-                                            ui.vertical_centered(|ui| {
-                                                ui.add(
-                                                    Label::new("Presets")
-                                                    .with_style(&heading_style)
-                                                );
+                                            ui.vertical(|ui| {
+                                                ui.horizontal(|ui| {
+                                                    ui.add_space(center_offset_x * 2.0);
+                                                    ui.add(
+                                                        Label::new("Media")
+                                                            .with_style(&subheading_style),
+                                                    );
+                                                });
+                                                ui.horizontal(|ui| {
+                                                    //ui.add_space(center_offset_x);
+                                                    ui.add(
+                                                        ParamSlider::for_param(
+                                                            params.param_int("Media Noise Type"),
+                                                            setter,
+                                                        )
+                                                        .with_label("Format")
+                                                        .with_style(&slider_style_1)
+                                                        .with_label_only_value()
+                                                        .with_tick_count(2)
+                                                        .without_fill(),
+                                                    );
+                                                    ui.add(
+                                                        ParamKnob::for_param(
+                                                            params
+                                                                .param_float("Media Noise Amount"),
+                                                            setter,
+                                                        )
+                                                        .with_label("Noise")
+                                                        .with_style(&knob_style_1),
+                                                    );
+                                                    ui.add(
+                                                        ParamSlider::for_param(
+                                                            params.param_float("Media Mono"),
+                                                            setter,
+                                                        )
+                                                        .with_label("Mono")
+                                                        .with_style(&slider_style_1),
+                                                    );
+                                                });
+                                                ui.horizontal(|ui| {
+                                                    ui.add(
+                                                        ParamKnob::for_param(
+                                                            params.param_float("Media Flutter"),
+                                                            setter,
+                                                        )
+                                                        .with_label("Flutter")
+                                                        .with_style(&knob_style_1),
+                                                    );
+                                                    ui.add(
+                                                        ParamKnob::for_param(
+                                                            params.param_float("Media Speed"),
+                                                            setter,
+                                                        )
+                                                        .with_label("Speed")
+                                                        .with_style(&knob_style_1),
+                                                    );
+                                                    ui.add(
+                                                        ParamKnob::for_param(
+                                                            params.param_float("Media Shape"),
+                                                            setter,
+                                                        )
+                                                        .with_label("Shape")
+                                                        .with_style(&knob_style_1),
+                                                    );
+                                                });
                                             });
 
-                                            Frame::new()
-                                            .outer_margin(Margin::same(0))
-                                            .inner_margin(subframe_inner_margin)
-                                            //.fill(palette.color(6).shade(1).into())
-                                            .fill(palette.white().brightness(0.3).into())
-                                            .show(ui, |ui| {
-                                                // ============================================
-                                                // ============== PRESETS PANEL ==============
-                                                // ============================================
-                                                //let preset_manager: PresetManager = preset_manager.borrow();
-                                                let list_style = PresetListStyle {
-                                                    bg_color: None,//Some(palette.dark_layer(1).into()),
-                                                    color: palette.white().into(),
-                                                    icon_style: IconButtonStyle{
-                                                        color: palette.white().into(),
-                                                        bg_color: Color32::TRANSPARENT,
-                                                        color_hover: palette.white().into(),
-                                                        bg_color_hover: palette.black().into(),
-                                                        ..Default::default()
-                                                    },
-                                                    label_style: LabelStyle{
-                                                        bg_color: palette.black().alpha(0.35).into(),
-                                                        bg_color_hover: Some(palette.black().alpha(0.5).into()),
-                                                        color: palette.white().into(),
-                                                        color_hover: Some(palette.white().into()),
-                                                        ..Default::default()
-                                                    },
-                                                    highlight_color: palette.color(0).into(),
-                                                    highlight_bg_color: palette.black().alpha(0.9).into(),
-                                                    search_bg_color: Some(palette.black().alpha(0.5).into()),
-                                                    search_color: Some(palette.white().into()),
-                                                    popup_offset_normalized: vec2(0.0, 1.04),
-                                                    ..Default::default()
-                                                };
+                                            ui.add(Separator::new().with_style(&separator_style));
 
-                                                ui.vertical_centered(|ui| {
-                                                    ui.set_width(ui.available_width());
-                                                    //ui.set_height(ui.available_height()-10.0);
-                                                    ui.set_height(260.0);
-                                                    PresetList::new()
-                                                        .with_style(&list_style)
-                                                        .show(ui, preset_manager, &params, setter);
-                                                    /*
-                                                    ListView::new([].iter(), ())
-                                                        .title("Search".into())
-                                                        .hold_text("something".into())
-                                                        .striped()
-                                                        .show(ctx, ui);
-                                                    */
+                                            ui.vertical(|ui| {
+                                                ui.horizontal(|ui| {
+                                                    ui.add_space(center_offset_x);
+                                                    ui.add(
+                                                        Label::new("Sampler")
+                                                            .with_style(&subheading_style),
+                                                    );
+                                                });
+                                                ui.horizontal(|ui| {
+                                                    ui.add(
+                                                        ParamKnob::for_param(
+                                                            params
+                                                                .param_float("Sampler Samplerate"),
+                                                            setter,
+                                                        )
+                                                        .with_label("Samplerate")
+                                                        .with_style(&knob_style_2),
+                                                    );
+                                                    ui.add(
+                                                        ParamKnob::for_param(
+                                                            params.param_int("Sampler Bits"),
+                                                            setter,
+                                                        )
+                                                        .with_label("Bits")
+                                                        .with_style(&knob_style_2)
+                                                        .with_indicator_style(
+                                                            ParamKnobIndicatorStyle::Dots,
+                                                        )
+                                                        .with_indicator_count(9),
+                                                    );
+                                                });
+                                                ui.horizontal(|ui| {
+                                                    ui.add(
+                                                        ParamKnob::for_param(
+                                                            params.param_float("Sampler Highpass"),
+                                                            setter,
+                                                        )
+                                                        .with_label("Low Cut")
+                                                        .with_style(&knob_style_2),
+                                                    );
+                                                    ui.add(
+                                                        ParamKnob::for_param(
+                                                            params.param_float("Sampler Lowpass"),
+                                                            setter,
+                                                        )
+                                                        .with_label("High Cut")
+                                                        .with_style(&knob_style_2)
+                                                        .with_indicator_from_end(),
+                                                    );
+                                                });
+                                            });
+
+                                            ui.add(Separator::new().with_style(&separator_style));
+
+                                            ui.vertical(|ui| {
+                                                ui.horizontal(|ui| {
+                                                    ui.add_space(center_offset_x);
+                                                    ui.add(
+                                                        Label::new("MIDI")
+                                                            .with_style(&subheading_style),
+                                                    );
+                                                });
+                                                ui.horizontal(|ui| {
+                                                    ui.add_space(center_offset_x);
+                                                    ui.add(
+                                                        ParamKnob::for_param(
+                                                            params.param_float("MIDI Sensitivity"),
+                                                            setter,
+                                                        )
+                                                        .with_label("Sensitivity")
+                                                        .with_style(&knob_style_5),
+                                                    );
+                                                });
+                                                ui.horizontal(|ui| {
+                                                    ui.add(
+                                                        ParamSlider::for_param(
+                                                            params.param_int("MIDI Bend Range"),
+                                                            setter,
+                                                        )
+                                                        .with_label("Bend Range")
+                                                        .with_style(&slider_style_5),
+                                                    );
+                                                    ui.add(
+                                                        ParamSlider::for_param(
+                                                            params.param_bool("MIDI Sustain Lock"),
+                                                            setter,
+                                                        )
+                                                        .with_label("Sustain Lock")
+                                                        .with_style(&slider_style_5),
+                                                    );
                                                 });
                                             });
                                         });
                                     });
                                 });
-                            });
-                        });
 
-                        // Moved Logo down here to eliminate Area causing focus issues...
-                        ui.allocate_new_ui(UiBuilder::new().max_rect(Rect::from_min_size(pos2(0.0, 0.0), vec2(0.0, 0.0))), |ui| {
-                            let response = ui.allocate_rect(
-                                Rect::from_min_size(pos2(0.0, 0.0),
-                                vec2(190.0, 70.0)),
-                                Sense::CLICK);
-                            if response.clicked() {
-                                show_credits.store(true, Ordering::Relaxed);
-                            }
-                            ui.painter().one_trick_logo(
-                                "KEYS",
-                                pos2(15.0, 35.0),
-                                52.0,
-                                palette.white().brightness(0.66).into(),
-                                if response.hovered() {palette.color(5).into()} else {palette.white().into()},
+                            //ui.add(Separator::new().with_style(&separator_style));
+
+                            // ============================================
+                            // ============== GLOBALS PANELS ==============
+                            // ============================================
+                            ui.allocate_new_ui(
+                                UiBuilder::new().max_rect(Rect::from_min_size(
+                                    pos2(560.0, 10.0),
+                                    vec2(380.0, 500.0),
+                                )),
+                                |ui| {
+                                    Frame::new() // Global Panel Wrapper
+                                        /*
+                                        .outer_margin(Margin::same(0.0))
+                                        .inner_margin(Margin::same(20.0))
+                                        .corner_radius(panel_rounding)
+                                        .fill(palette.white().into())
+                                        .stroke(Stroke::new(2.0, palette.black()))
+                                        */
+                                        .show(ui, |ui| {
+                                            let frame_outer_margin = Margin {
+                                                top: 5,
+                                                ..Default::default()
+                                            };
+                                            //let frame_inner_margin = Margin::same(10.0);
+                                            let frame_inner_margin = Margin {
+                                                left: 0,
+                                                right: 0,
+                                                top: 5,
+                                                bottom: 15,
+                                            };
+                                            let subframe_inner_margin = Margin::same(10);
+
+                                            //ui.set_max_width(75.0*5.0+30.0);
+                                            ui.vertical_centered(|ui| {
+                                                // ===========================================
+                                                // ============== PRESETS PANEL ==============
+                                                // ===========================================
+                                                Frame::new()
+                                                    .outer_margin(frame_outer_margin)
+                                                    .inner_margin(frame_inner_margin)
+                                                    //.fill(palette.color(6).shade(1).into())
+                                                    .fill(palette.white().brightness(0.8).into())
+                                                    .corner_radius(panel_rounding)
+                                                    .shadow(panel_shadow)
+                                                    .show(ui, |ui| {
+                                                        ui.vertical_centered(|ui| {
+                                                            ui.add(
+                                                                Label::new("Presets")
+                                                                    .with_style(&heading_style),
+                                                            );
+                                                        });
+
+                                                        Frame::new()
+                                                            .outer_margin(Margin::same(0))
+                                                            .inner_margin(subframe_inner_margin)
+                                                            //.fill(palette.color(6).shade(1).into())
+                                                            .fill(
+                                                                palette
+                                                                    .white()
+                                                                    .brightness(0.3)
+                                                                    .into(),
+                                                            )
+                                                            .show(ui, |ui| {
+                                                                // ============================================
+                                                                // ============== PRESETS PANEL ==============
+                                                                // ============================================
+                                                                //let preset_manager: PresetManager = preset_manager.borrow();
+                                                                let list_style = PresetListStyle {
+                                                                    bg_color: None, //Some(palette.dark_layer(1).into()),
+                                                                    color: palette.white().into(),
+                                                                    icon_style: IconButtonStyle {
+                                                                        color: palette
+                                                                            .white()
+                                                                            .into(),
+                                                                        bg_color:
+                                                                            Color32::TRANSPARENT,
+                                                                        color_hover: palette
+                                                                            .white()
+                                                                            .into(),
+                                                                        bg_color_hover: palette
+                                                                            .black()
+                                                                            .into(),
+                                                                        ..Default::default()
+                                                                    },
+                                                                    label_style: LabelStyle {
+                                                                        bg_color: palette
+                                                                            .black()
+                                                                            .alpha(0.35)
+                                                                            .into(),
+                                                                        bg_color_hover: Some(
+                                                                            palette
+                                                                                .black()
+                                                                                .alpha(0.5)
+                                                                                .into(),
+                                                                        ),
+                                                                        color: palette
+                                                                            .white()
+                                                                            .into(),
+                                                                        color_hover: Some(
+                                                                            palette.white().into(),
+                                                                        ),
+                                                                        ..Default::default()
+                                                                    },
+                                                                    highlight_color: palette
+                                                                        .color(0)
+                                                                        .into(),
+                                                                    highlight_bg_color: palette
+                                                                        .black()
+                                                                        .alpha(0.9)
+                                                                        .into(),
+                                                                    search_bg_color: Some(
+                                                                        palette
+                                                                            .black()
+                                                                            .alpha(0.5)
+                                                                            .into(),
+                                                                    ),
+                                                                    search_color: Some(
+                                                                        palette.white().into(),
+                                                                    ),
+                                                                    popup_offset_normalized: vec2(
+                                                                        0.0, 1.04,
+                                                                    ),
+                                                                    ..Default::default()
+                                                                };
+
+                                                                ui.vertical_centered(|ui| {
+                                                                    ui.set_width(
+                                                                        ui.available_width(),
+                                                                    );
+                                                                    //ui.set_height(ui.available_height()-10.0);
+                                                                    ui.set_height(260.0);
+                                                                    PresetList::new()
+                                                                        .with_style(&list_style)
+                                                                        .show(
+                                                                            ui,
+                                                                            preset_manager,
+                                                                            &params,
+                                                                            setter,
+                                                                        );
+                                                                    /*
+                                                                    ListView::new([].iter(), ())
+                                                                        .title("Search".into())
+                                                                        .hold_text("something".into())
+                                                                        .striped()
+                                                                        .show(ctx, ui);
+                                                                    */
+                                                                });
+                                                            });
+                                                    });
+                                            });
+                                        });
+                                },
                             );
                         });
 
+                        // Moved Logo down here to eliminate Area causing focus issues...
+                        ui.allocate_new_ui(
+                            UiBuilder::new()
+                                .max_rect(Rect::from_min_size(pos2(0.0, 0.0), vec2(0.0, 0.0))),
+                            |ui| {
+                                let response = ui.allocate_rect(
+                                    Rect::from_min_size(pos2(0.0, 0.0), vec2(190.0, 70.0)),
+                                    Sense::CLICK,
+                                );
+                                if response.clicked() {
+                                    show_credits.store(true, Ordering::Relaxed);
+                                }
+                                ui.painter().one_trick_logo(
+                                    "KEYS",
+                                    pos2(15.0, 35.0),
+                                    52.0,
+                                    palette.white().brightness(0.66).into(),
+                                    if response.hovered() {
+                                        palette.color(5).into()
+                                    } else {
+                                        palette.white().into()
+                                    },
+                                );
+                            },
+                        );
                     });
             },
         )
@@ -1282,7 +1381,7 @@ impl ClapPlugin for OneTrickKeys {
     const CLAP_MANUAL_URL: Option<&'static str> = Some(Self::URL);
     const CLAP_SUPPORT_URL: Option<&'static str> = None;
     const CLAP_FEATURES: &'static [ClapFeature] = &[
-        ClapFeature::Instrument,  //Plugin Category
+        ClapFeature::Instrument, //Plugin Category
         ClapFeature::Stereo,
     ]; // Audio Capabilities
        /*

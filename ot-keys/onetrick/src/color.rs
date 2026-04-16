@@ -27,7 +27,6 @@
 
 pub use nih_plug_egui::egui::ecolor::{Color32, Hsva, HsvaGamma, Rgba};
 
-
 /// Adds linear interpolation to built-in Colors
 pub trait InterpolateColors {
     fn interpolate_to(&self, to: Self, t: f32) -> Self;
@@ -41,7 +40,7 @@ impl InterpolateColors for Rgba {
             from.r() * inv_t + to.r() * t,
             from.g() * inv_t + to.g() * t,
             from.b() * inv_t + to.b() * t,
-            from.a() * inv_t + to.a() * t
+            from.a() * inv_t + to.a() * t,
         )
     }
 }

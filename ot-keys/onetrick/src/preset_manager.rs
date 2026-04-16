@@ -29,20 +29,17 @@ use std::sync::Arc;
 
 use std::fs;
 use std::fs::File;
-use std::io::{Write};
+use std::io::Write;
 use std::path::{Path, PathBuf};
 
 #[allow(unused_imports)]
-use directories::{
-    UserDirs,
-    ProjectDirs,
-};
+use directories::{ProjectDirs, UserDirs};
 
 //use nih_plug::context::gui::ParamSetter;
 use nih_plug::prelude::*;
 
-use super::preset::*;
 use super::params::*;
+use super::preset::*;
 
 /// Manages a list of Presets for use in the GUI and elsewhere
 #[derive(Default)]
@@ -78,7 +75,6 @@ pub struct PresetManager {
 }
 
 impl PresetManager {
-
     /// Returns a new PresetManager for with a specified plugin folder name
     /// The folder name should be something like "OneTrick SIMIAN"
     pub fn new(plugin_folder: &str) -> Self {
@@ -113,7 +109,6 @@ impl PresetManager {
         self
     }
 
-
     #[cfg(not(target_os = "macos"))]
     /// Gets the Preset Directory on Linux/Windows
     pub fn get_preset_path(&self) -> Option<String> {
@@ -130,7 +125,9 @@ impl PresetManager {
     pub fn get_preset_path(&self) -> Option<String> {
         let user_dirs = UserDirs::new()?;
         let home_dir = user_dirs.home_dir();
-        let path = home_dir.join(PathBuf::from("Library/Audio/Presets/Punk Labs/".to_string()+&self.plugin_folder));
+        let path = home_dir.join(PathBuf::from(
+            "Library/Audio/Presets/Punk Labs/".to_string() + &self.plugin_folder,
+        ));
         if !Path::new(&path).exists() {
             fs::create_dir_all(path.clone()).ok()?;
         }
@@ -152,9 +149,7 @@ impl PresetManager {
             self.read_access = true;
             //let directory = fs::read_dir(&path).unwrap();
             // ... in directory.flatten()
-            let mut directory: Vec<_> = fs::read_dir(path).unwrap()
-                .map(|r| r.unwrap())
-                .collect();
+            let mut directory: Vec<_> = fs::read_dir(path).unwrap().map(|r| r.unwrap()).collect();
             directory.sort_by_key(|dir| dir.path());
 
             for dir_entry in directory {
@@ -211,7 +206,6 @@ impl PresetManager {
                 }
                 self.active_field_value = new_value;
             }
-    
         }
     }
 
@@ -250,12 +244,17 @@ impl PresetManager {
     }
 
     /// Sets the active Preset
-    pub fn set_active(&mut self, preset: Preset, params: &OneTrickPluginParams, setter: &ParamSetter) {
+    pub fn set_active(
+        &mut self,
+        preset: Preset,
+        params: &OneTrickPluginParams,
+        setter: &ParamSetter,
+    ) {
         let excluded_params = self.excluded_params.clone();
         let filtered_preset = preset.clone().filter_params(&mut |param: &str| {
             for p in &excluded_params {
                 if param.contains(p) {
-                    return false
+                    return false;
                 }
             }
             true
@@ -276,7 +275,12 @@ impl PresetManager {
     }
 
     /// Activates a Preset by index
-    pub fn activate_preset(&mut self, index: usize, params: &OneTrickPluginParams, setter: &ParamSetter) {
+    pub fn activate_preset(
+        &mut self,
+        index: usize,
+        params: &OneTrickPluginParams,
+        setter: &ParamSetter,
+    ) {
         if let Some(preset) = self.get_preset(index) {
             if let Some(active_field) = &self.active_field {
                 active_field.set(&preset.name);
@@ -301,11 +305,12 @@ impl PresetManager {
                 if let Some(json) = self.active.to_string() {
                     // Hack: make sure the active preset is identical to the newly saved one
                     // This will help reselecting it after a refresh
-                    if let Some(newly_saved_preset) = Preset::from_string(&self.active.name, &json) {
+                    if let Some(newly_saved_preset) = Preset::from_string(&self.active.name, &json)
+                    {
                         self.active = newly_saved_preset.clone();
                     }
 
-                    let full_path = path+"/"+&self.active.name+".preset";
+                    let full_path = path + "/" + &self.active.name + ".preset";
                     if let Ok(mut output) = File::create(full_path) {
                         self.write_access = true;
                         let _ = write!(output, "{}", json);
@@ -323,8 +328,11 @@ impl PresetManager {
         let search = search.trim_start().trim_end().to_string();
         let search_terms = search.split(' ').collect::<Vec<&str>>();
         let is_searching = !search_terms.is_empty();
-        self.get_presets().iter().enumerate()
-            .filter(|(_i,p)| { // Search Filter
+        self.get_presets()
+            .iter()
+            .enumerate()
+            .filter(|(_i, p)| {
+                // Search Filter
                 //let is_searching = !cleaned_search_string.is_empty();
                 if !is_searching {
                     return true;
@@ -334,9 +342,9 @@ impl PresetManager {
                 let p_desc_lower = p.get_info(DESCRIPTION_KEY.to_string()).to_lowercase();
                 for term in &search_terms {
                     if p_name_lower.contains(term)
-                    || p_auth_lower.contains(term)
-                    || p_desc_lower.contains(term)
-                    || p.has_tag(*term)
+                        || p_auth_lower.contains(term)
+                        || p_desc_lower.contains(term)
+                        || p.has_tag(*term)
                     {
                         continue;
                     }
@@ -345,6 +353,8 @@ impl PresetManager {
                 true
                 //|| p.name.to_lowercase().contains(&cleaned_search_string)
                 //|| p.has_tag(&cleaned_search_string)
-            }).map(|(i,_p)| i).collect::<Vec<usize>>()
+            })
+            .map(|(i, _p)| i)
+            .collect::<Vec<usize>>()
     }
 }

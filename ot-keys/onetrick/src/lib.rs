@@ -34,11 +34,11 @@ pub mod preset_manager;
 pub mod process;
 
 #[cfg(feature = "egui")]
+pub mod color;
+#[cfg(feature = "egui")]
 pub mod egui;
 #[cfg(feature = "egui")]
 pub mod palette;
-#[cfg(feature = "egui")]
-pub mod color;
 
 #[allow(dead_code)]
 pub mod prelude {
@@ -51,9 +51,9 @@ pub mod prelude {
     pub use super::process::*;
 
     #[cfg(feature = "egui")]
+    pub use super::color::*;
+    #[cfg(feature = "egui")]
     pub use super::egui::*;
     #[cfg(feature = "egui")]
     pub use super::palette::*;
-    #[cfg(feature = "egui")]
-    pub use super::color::*;
 }

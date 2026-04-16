@@ -26,16 +26,7 @@
 */
 
 use nih_plug_egui::egui::{
-    vec2,
-    Align2,
-    Color32,
-    Response,
-    CornerRadius as Rounding,
-    Sense,
-    Ui,
-    Widget,
-    EventFilter,
-    StrokeKind,
+    vec2, Align2, Color32, CornerRadius, EventFilter, Response, Sense, StrokeKind, Ui, Widget,
 };
 
 use super::icons::{Dingbat, IconDrawer};
@@ -107,7 +98,7 @@ impl IconButton {
         self.style.bg_color_hover = Color32::TRANSPARENT;
         self
     }
-    
+
     /// Sets the text color
     pub fn with_color(mut self, color: Color32) -> Self {
         self.style.color = color;
@@ -131,7 +122,17 @@ impl Widget for IconButton {
         }
 
         // Filter Navigation Keys
-        ui.memory_mut(|mem| mem.set_focus_lock_filter(response.id, EventFilter{horizontal_arrows:false,vertical_arrows:false,escape:true, ..Default::default()}));
+        ui.memory_mut(|mem| {
+            mem.set_focus_lock_filter(
+                response.id,
+                EventFilter {
+                    horizontal_arrows: false,
+                    vertical_arrows: false,
+                    escape: true,
+                    ..Default::default()
+                },
+            )
+        });
 
         let color = if response.hovered() || response.has_focus() {
             self.style.bg_color_hover
@@ -140,7 +141,7 @@ impl Widget for IconButton {
         };
         if color.a() > 0 {
             ui.painter()
-                .rect_filled(rect, Rounding::same(self.style.rounding as u8), color);
+                .rect_filled(rect, CornerRadius::same(self.style.rounding as u8), color);
         }
 
         let color = if response.hovered() || response.has_focus() {
@@ -159,7 +160,12 @@ impl Widget for IconButton {
         if response.has_focus() {
             let focus_stroke = ui.style().visuals.selection.stroke;
             if !focus_stroke.is_empty() {
-                ui.painter().rect_stroke(rect, self.style.rounding, focus_stroke, StrokeKind::Middle);
+                ui.painter().rect_stroke(
+                    rect,
+                    self.style.rounding,
+                    focus_stroke,
+                    StrokeKind::Middle,
+                );
             }
         }
 
