@@ -27,9 +27,9 @@
 
 use std::f32::consts::TAU;
 
-use nih_plug_egui::egui::Shape;
 use nih_plug_egui::egui::emath::{Pos2, Vec2};
 use nih_plug_egui::egui::epaint::{PathShape, PathStroke};
+use nih_plug_egui::egui::Shape;
 
 /// Extends Shapes with an arc_stroke function
 pub trait ShapeEx {

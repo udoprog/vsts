@@ -26,7 +26,8 @@
 */
 
 use nih_plug_egui::egui::{
-    Align2, Color32, FontFamily, FontId, Response, CornerRadius as Rounding, Sense, Shape, StrokeKind, Ui, Vec2, Widget, epaint::Shadow, vec2
+    epaint::Shadow, vec2, Align2, Color32, CornerRadius, FontFamily, FontId, Response, Sense,
+    Shape, StrokeKind, Ui, Vec2, Widget,
 };
 
 use crate::color::InterpolateColors;
@@ -48,7 +49,7 @@ pub struct LabelStyle {
 
     /// Color of the background
     pub bg_color: Color32,
-    
+
     /// Color of the background when hovering
     pub bg_color_hover: Option<Color32>,
 
@@ -100,7 +101,12 @@ impl LabelStyle {
             font_id: FontId::new(22.0, FontFamily::Proportional),
             bg_color: Color32::DARK_GRAY,
             bg_height: 22.0,
-            shadow: Some(Shadow { offset: [0, 2], blur: 0, spread: 0, color: Color32::from_black_alpha(16) }),
+            shadow: Some(Shadow {
+                offset: [0, 2],
+                blur: 0,
+                spread: 0,
+                color: Color32::from_black_alpha(16),
+            }),
             shadow_offset: vec2(0.0, 1.0),
             ..Default::default()
         }
@@ -177,16 +183,18 @@ impl Widget for Label {
             Sense::hover()
             //Sense::focusable_noninteractive()
         };
-        
+
         let (rect, response) = ui.allocate_exact_size(
             vec2(
                 self.style.width.unwrap_or_else(|| ui.available_width()),
                 self.style.bg_height,
             ),
-            sense
+            sense,
         );
-        
-        let hovered_amount = ui.ctx().animate_bool_with_time(response.id, response.hovered(), 0.100);
+
+        let hovered_amount =
+            ui.ctx()
+                .animate_bool_with_time(response.id, response.hovered(), 0.100);
 
         let mut color = self.style.bg_color;
         if let Some(to_color) = self.style.bg_color_hover {
@@ -195,7 +203,7 @@ impl Widget for Label {
             }
         }
 
-        let rounding = Rounding::same(u8::MAX);
+        let rounding = CornerRadius::same(u8::MAX);
 
         if let Some(shadow) = self.style.shadow {
             let shadow = shadow.as_shape(rect.translate(self.style.shadow_offset), rounding);
@@ -204,8 +212,7 @@ impl Widget for Label {
         }
 
         if color.a() > 0 {
-            ui.painter()
-                .rect_filled(rect, rounding, color);
+            ui.painter().rect_filled(rect, rounding, color);
         }
 
         let mut color = self.style.color;
@@ -225,7 +232,8 @@ impl Widget for Label {
         if response.has_focus() {
             let focus_stroke = ui.style().visuals.selection.stroke;
             if !focus_stroke.is_empty() {
-                ui.painter().rect_stroke(rect, rounding, focus_stroke, StrokeKind::Middle);
+                ui.painter()
+                    .rect_stroke(rect, rounding, focus_stroke, StrokeKind::Middle);
             }
         }
 

@@ -50,26 +50,26 @@ impl BasicFonts {
             .families
             .insert(FontFamily::Name("Title".into()), vec![]);
 
-            /* FontTweak {
-            scale: f32,
-            y_offset_factor: f32,
-            y_offset: f32,
-            baseline_offset_factor: f32,
-            } */
+        /* FontTweak {
+        scale: f32,
+        y_offset_factor: f32,
+        y_offset: f32,
+        baseline_offset_factor: f32,
+        } */
         // Label Font: Teko
-        
-        let font_data = FontData::from_static(include_bytes!("../assets/fonts/Teko/Teko-Regular.ttf")).tweak(
-                FontTweak {
-                    scale: 1.00,
-                    y_offset_factor: 0.08,
-                    ..Default::default()
-                }
-            );
-        
-        fonts.font_data.insert(
-            "Teko".to_owned(),
-            Arc::new(font_data),
-        );
+
+        let font_data = FontData::from_static(include_bytes!(
+            "../assets/fonts/Teko/Teko-Regular.ttf"
+        ))
+        .tweak(FontTweak {
+            scale: 1.00,
+            y_offset_factor: 0.08,
+            ..Default::default()
+        });
+
+        fonts
+            .font_data
+            .insert("Teko".to_owned(), Arc::new(font_data));
 
         fonts
             .families
@@ -77,19 +77,16 @@ impl BasicFonts {
             .or_default()
             .insert(0, "Teko".to_owned());
 
-        let font_data = Arc::new(FontData::from_static(include_bytes!("../assets/fonts/Rajdhani/Rajdhani-Bold.ttf"))
-                .tweak(
-                    FontTweak {
-                        scale: 1.00,
-                        ..Default::default()
-                    }
-                ));
+        let font_data = Arc::new(
+            FontData::from_static(include_bytes!("../assets/fonts/Rajdhani/Rajdhani-Bold.ttf"))
+                .tweak(FontTweak {
+                    scale: 1.00,
+                    ..Default::default()
+                }),
+        );
 
         // Title Font: Rajdhani
-        fonts.font_data.insert(
-            "Rajdhani".to_owned(),
-            font_data
-        );
+        fonts.font_data.insert("Rajdhani".to_owned(), font_data);
 
         fonts
             .families

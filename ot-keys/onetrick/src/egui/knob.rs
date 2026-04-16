@@ -35,7 +35,10 @@ use nih_plug_egui::egui::{
     epaint::PathShape,
     output::CursorIcon,
     Color32,
+    Event,
+    EventFilter,
     Id,
+    Key,
     Pos2,
     //        Align2,
     Response,
@@ -45,9 +48,6 @@ use nih_plug_egui::egui::{
     Ui,
     Vec2,
     Widget,
-    Event,
-    EventFilter,
-    Key,
 };
 //use parking_lot::Mutex;
 
@@ -412,12 +412,15 @@ impl<'a, P: Param> ParamKnob<'a, P> {
     fn increment_param(&self, next: bool, fine: bool) {
         if let Some(param) = self.param {
             let current_value = param.unmodulated_plain_value();
-            let new_value = if next {param.next_step(current_value, fine)} else {param.previous_step(current_value, fine)};
-            self.setter
-                .set_parameter(param, new_value);
+            let new_value = if next {
+                param.next_step(current_value, fine)
+            } else {
+                param.previous_step(current_value, fine)
+            };
+            self.setter.set_parameter(param, new_value);
         }
     }
-    
+
     /// Updates the current drag operation
     fn perform_drag(&self, ui: &Ui, drag_delta: Vec2, fine: bool) {
         let start_value = Self::get_drag_normalized_start_value_memory(ui);
@@ -439,31 +442,28 @@ impl<'a, P: Param> ParamKnob<'a, P> {
 
     /// Returns the normalized Parameter value the drag operation began at
     fn get_drag_normalized_start_value_memory(ui: &Ui) -> f32 {
-        ui.data(|r| { r
-            .get_temp(*DRAG_NORMALIZED_START_VALUE_MEMORY_ID)
-            .unwrap_or(0.5)
+        ui.data(|r| {
+            r.get_temp(*DRAG_NORMALIZED_START_VALUE_MEMORY_ID)
+                .unwrap_or(0.5)
         })
     }
 
     /// Sets the normalized Parameter value for a new drag operation
     fn set_drag_normalized_start_value_memory(ui: &Ui, amount: f32) {
-        ui.data_mut(|r| { r
-            .insert_temp(*DRAG_NORMALIZED_START_VALUE_MEMORY_ID, amount);
+        ui.data_mut(|r| {
+            r.insert_temp(*DRAG_NORMALIZED_START_VALUE_MEMORY_ID, amount);
         })
     }
 
     /// Returns the amount we've dragged so far from memory
     fn get_drag_amount_memory(ui: &Ui) -> f32 {
-        ui.data(|r| { r
-            .get_temp(*DRAG_AMOUNT_MEMORY_ID)
-            .unwrap_or(0.0)
-        })
+        ui.data(|r| r.get_temp(*DRAG_AMOUNT_MEMORY_ID).unwrap_or(0.0))
     }
 
     /// Sets the amount we've dragged so far into memory
     fn set_drag_amount_memory(ui: &Ui, amount: f32) {
-        ui.data_mut(|r| { r
-            .insert_temp(*DRAG_AMOUNT_MEMORY_ID, amount);
+        ui.data_mut(|r| {
+            r.insert_temp(*DRAG_AMOUNT_MEMORY_ID, amount);
         });
     }
 
@@ -474,9 +474,9 @@ impl<'a, P: Param> ParamKnob<'a, P> {
          * can result in a missed drag... This may need to be fixed upstream.
          */
 
-         if response.clicked() {
+        if response.clicked() {
             response.request_focus();
-         }
+        }
 
         if let Some(param) = self.param {
             let unmodulated_normalized_value = param.unmodulated_normalized_value();
@@ -493,9 +493,7 @@ impl<'a, P: Param> ParamKnob<'a, P> {
                 });
 
                 if let Some(_click_pos) = response.interact_pointer_pos() {
-                    let fine = ui.input(|r| 
-                        r.modifiers.shift
-                    );
+                    let fine = ui.input(|r| r.modifiers.shift);
                     self.perform_drag(ui, response.drag_delta(), fine);
                     response.mark_changed();
                 }
@@ -507,7 +505,7 @@ impl<'a, P: Param> ParamKnob<'a, P> {
                 });
             }
 
-            if response.double_clicked() || (response.clicked() && ui.input(|r|r.modifiers.ctrl)) {
+            if response.double_clicked() || (response.clicked() && ui.input(|r| r.modifiers.ctrl)) {
                 let must_fake_drag = !response.dragged(); // APIs require begin_set_parameter/end_set_parameter calls
                 if must_fake_drag {
                     self.begin_drag();
@@ -519,10 +517,18 @@ impl<'a, P: Param> ParamKnob<'a, P> {
                 response.mark_changed();
             }
 
-            if response.has_focus() && ui.input(|i| i.modifiers.ctrl) { // Keyboard Input
+            if response.has_focus() && ui.input(|i| i.modifiers.ctrl) {
+                // Keyboard Input
                 ui.input(|r| {
                     for event in &r.events {
-                        if let Event::Key{key, pressed, modifiers, repeat, physical_key} = event {
+                        if let Event::Key {
+                            key,
+                            pressed,
+                            modifiers,
+                            repeat,
+                            physical_key,
+                        } = event
+                        {
                             if *pressed {
                                 let forward = match key {
                                     Key::ArrowUp | Key::ArrowRight => Some(true),
@@ -709,7 +715,8 @@ impl<'a, P: Param> ParamKnob<'a, P> {
                 if response.has_focus() {
                     let focus_stroke = ui.style().visuals.selection.stroke;
                     if !focus_stroke.is_empty() {
-                        ui.painter().circle_stroke(knob_center, self.style.radius, focus_stroke);
+                        ui.painter()
+                            .circle_stroke(knob_center, self.style.radius, focus_stroke);
                     }
                 }
             }
@@ -756,7 +763,17 @@ impl<P: Param> Widget for ParamKnob<'_, P> {
 
             // Filter Navigation Keys
             let is_editing = response.has_focus() && ui.input(|i| i.modifiers.ctrl);
-            ui.memory_mut(|mem| mem.set_focus_lock_filter(response.id, EventFilter{horizontal_arrows:is_editing,vertical_arrows:is_editing,escape:true, ..Default::default()}));
+            ui.memory_mut(|mem| {
+                mem.set_focus_lock_filter(
+                    response.id,
+                    EventFilter {
+                        horizontal_arrows: is_editing,
+                        vertical_arrows: is_editing,
+                        escape: true,
+                        ..Default::default()
+                    },
+                )
+            });
 
             self.knob_ui(ui, &mut response);
             if self.draw_value {

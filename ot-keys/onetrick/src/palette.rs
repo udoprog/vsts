@@ -29,7 +29,6 @@ use std::convert::From;
 
 pub use nih_plug_egui::egui::ecolor::{Color32, Hsva, HsvaGamma, Rgba};
 
-
 /// A mathmatical palette to pick nice colors using the power of math
 #[derive(Clone)]
 pub struct Palette {
@@ -61,7 +60,6 @@ impl Default for Palette {
 }
 
 impl Palette {
-
     /// Returns a new Palette with a set number of base colors
     pub fn new(hue_count: u32) -> Self {
         Self {

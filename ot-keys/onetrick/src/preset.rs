@@ -25,11 +25,11 @@
     OneTrick.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-use std::collections::{BTreeMap, HashMap};
 use nih_plug::prelude::*;
 use nih_plug::wrapper::state::ParamValue;
+use std::collections::{BTreeMap, HashMap};
 
-use serde::{Serialize, Serializer, Deserialize};
+use serde::{Deserialize, Serialize, Serializer};
 use serde_json::{json, Value};
 
 use rand::Rng;
@@ -45,10 +45,8 @@ pub const DESCRIPTION_KEY: &str = "Description";
 
 use super::params::*;
 
-
 /// Stores a OneTrick Preset with metadata, tags, and parameter values
-#[derive(Clone, PartialEq)]
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct Preset {
     /// Name of the Preset
     #[serde(skip_serializing, skip_deserializing)]
@@ -78,7 +76,7 @@ where
     ordered.serialize(serializer)
 }
 
-fn serde_sorted_vec<S, K: Ord + Serialize+ Clone>(
+fn serde_sorted_vec<S, K: Ord + Serialize + Clone>(
     value: &[K],
     serializer: S,
 ) -> Result<S::Ok, S::Error>
@@ -109,7 +107,6 @@ impl PartialEq for Preset {
 */
 
 impl Preset {
-
     /// Returns a new Preset from OneTrickPluginParams
     pub fn from_params(name: &str, params: &OneTrickPluginParams) -> Self {
         let mut result = Self {
@@ -131,13 +128,19 @@ impl Preset {
         for (id, param, _group) in &params.params {
             match param {
                 ParamType::BoolParam(p) => {
-                    result.params.insert(id.to_string(), json!(p.default_plain_value()));
+                    result
+                        .params
+                        .insert(id.to_string(), json!(p.default_plain_value()));
                 }
                 ParamType::FloatParam(p) => {
-                    result.params.insert(id.to_string(), json!(p.default_plain_value()));
+                    result
+                        .params
+                        .insert(id.to_string(), json!(p.default_plain_value()));
                 }
                 ParamType::IntParam(p) => {
-                    result.params.insert(id.to_string(), json!(p.default_plain_value()));
+                    result
+                        .params
+                        .insert(id.to_string(), json!(p.default_plain_value()));
                 }
             }
         }
@@ -151,7 +154,8 @@ impl Preset {
     pub fn from_random_values(params: &OneTrickPluginParams) -> Self {
         let mut result = Self {
             name: format!("Random {}", rand::thread_rng().gen_range(0..10000)).to_string(),
-            ..Default::default() };
+            ..Default::default()
+        };
 
         result.params.clear();
         for (id, param, _group) in &params.params {
@@ -179,7 +183,8 @@ impl Preset {
     }
 
     pub fn filter_params<FilterFn>(mut self, param_filter: &mut FilterFn) -> Self
-        where FilterFn: Fn(&str) -> bool, // (param_name) returns true if param is okay to keep
+    where
+        FilterFn: Fn(&str) -> bool, // (param_name) returns true if param is okay to keep
     {
         let mut params_to_remove: Vec<String> = vec![];
         for param in self.params.keys() {
@@ -193,9 +198,8 @@ impl Preset {
         self
     }
 
-
     pub fn filter_params_exclude(self, exclude: &[&str], except_for: &[&str]) -> Self {
-        self.filter_params(&mut |param: &str|{
+        self.filter_params(&mut |param: &str| {
             let mut should_exclude = false;
             for s in exclude {
                 if param.contains(s) {
@@ -216,7 +220,7 @@ impl Preset {
     }
 
     pub fn filter_params_include(self, include: &[&str]) -> Self {
-        self.filter_params(&mut |param: &str|{
+        self.filter_params(&mut |param: &str| {
             for s in include {
                 if param.contains(s) {
                     return true;
@@ -225,11 +229,11 @@ impl Preset {
             false
         })
     }
-    
+
     pub fn copy_params_by_prefix(mut self, from_prefix: &str, to_prefix: &str) -> Self {
         let mut param_list: Vec<String> = vec![];
         for param in self.params.keys() {
-            if param.starts_with(from_prefix){
+            if param.starts_with(from_prefix) {
                 param_list.push(param.to_owned());
             }
         }
@@ -240,7 +244,7 @@ impl Preset {
         }
         self
     }
-    
+
     /// Returns a new Preset from a string representation (JSON)
     pub fn from_string(name: &str, preset_string: &str) -> Option<Self> {
         if let Ok(mut preset) = serde_json::from_str::<Self>(preset_string) {
@@ -318,30 +322,43 @@ impl Preset {
     }
 
     /// Returns a new PluginState with the Preset values applied
-    pub fn get_plugin_state(&self, params: &OneTrickPluginParams, setter: &ParamSetter) -> PluginState {
+    pub fn get_plugin_state(
+        &self,
+        params: &OneTrickPluginParams,
+        setter: &ParamSetter,
+    ) -> PluginState {
         let ctx = &setter.raw_context;
         let mut state = ctx.get_state().clone();
-        for (id, param, _group) in params.param_map(){
+        for (id, param, _group) in params.param_map() {
             if state.params.contains_key(&id.to_owned()) {
                 let name = unsafe { param.name() };
                 if let Some(value) = self.params.get(name) {
                     match param {
                         ParamPtr::BoolParam(_p) => {
                             if let Ok(value) = serde_json::from_value::<bool>(value.clone()) {
-                                state.params.entry(id.to_owned()).and_modify(|e|*e=ParamValue::Bool(value));
+                                state
+                                    .params
+                                    .entry(id.to_owned())
+                                    .and_modify(|e| *e = ParamValue::Bool(value));
                             }
-                        },
+                        }
                         ParamPtr::FloatParam(_p) => {
                             if let Ok(value) = serde_json::from_value::<f32>(value.clone()) {
-                                state.params.entry(id.to_owned()).and_modify(|e|*e=ParamValue::F32(value));
+                                state
+                                    .params
+                                    .entry(id.to_owned())
+                                    .and_modify(|e| *e = ParamValue::F32(value));
                             }
-                        },
+                        }
                         ParamPtr::IntParam(_p) => {
                             if let Ok(value) = serde_json::from_value::<i32>(value.clone()) {
-                                state.params.entry(id.to_owned()).and_modify(|e|*e=ParamValue::I32(value));
+                                state
+                                    .params
+                                    .entry(id.to_owned())
+                                    .and_modify(|e| *e = ParamValue::I32(value));
                             }
-                        },
-                        _ => {},
+                        }
+                        _ => {}
                     }
                 }
             }
@@ -352,25 +369,25 @@ impl Preset {
     /// Returns true if the Preset has a tag, case sensitive
     pub fn has_tag_case_sensitive<S: Into<String>>(&self, tag: S) -> bool {
         let tag = tag.into();
-        self.tags.iter().any(|t|*t==tag)
+        self.tags.iter().any(|t| *t == tag)
     }
-    
+
     /// Returns optional index of the tag, case sensitive
     pub fn tag_index_case_sensitive<S: Into<String>>(&self, tag: S) -> Option<usize> {
         let tag = tag.into();
-        self.tags.iter().position(|t|*t==tag)
+        self.tags.iter().position(|t| *t == tag)
     }
 
     /// Returns true if the Preset has a tag, case insensitive
     pub fn has_tag<S: Into<String>>(&self, tag: S) -> bool {
         let tag = tag.into();
-        self.tags.iter().any(|t|t.eq_ignore_ascii_case(&tag))
+        self.tags.iter().any(|t| t.eq_ignore_ascii_case(&tag))
     }
 
     /// Returns optional index of the tag, case insensitive
     pub fn tag_index<S: Into<String>>(&self, tag: S) -> Option<usize> {
         let tag = tag.into();
-        self.tags.iter().position(|t|t.eq_ignore_ascii_case(&tag))
+        self.tags.iter().position(|t| t.eq_ignore_ascii_case(&tag))
     }
 
     /// Returns a list of tags
@@ -385,13 +402,17 @@ impl Preset {
 
     /// Returns a comma-separated list of tags, filtered for disallowed tags ("Factory")
     pub fn get_tags_string_filtered(&self) -> String {
-        self.tags.iter().filter_map(|t|{
-            if t==FACTORY_TAG {
-                None
-            } else {
-                Some(t.to_string())
-            }
-        }).collect::<Vec<_>>().join(" ")
+        self.tags
+            .iter()
+            .filter_map(|t| {
+                if t == FACTORY_TAG {
+                    None
+                } else {
+                    Some(t.to_string())
+                }
+            })
+            .collect::<Vec<_>>()
+            .join(" ")
     }
 
     /// Sets the list of tags from a comma-separated list of tags
@@ -439,7 +460,10 @@ impl Preset {
 
     /// Returns info by key (or "" if not found)
     pub fn get_info<S: Into<String>>(&self, key: S) -> String {
-        self.info.get(&key.into()).unwrap_or(&"".to_string()).to_string()
+        self.info
+            .get(&key.into())
+            .unwrap_or(&"".to_string())
+            .to_string()
     }
 
     /// Removes a key of info in the PReset

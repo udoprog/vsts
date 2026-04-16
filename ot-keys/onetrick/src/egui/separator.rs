@@ -25,9 +25,7 @@
     OneTrick.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-use nih_plug_egui::egui::{
-    vec2, Color32, Response, CornerRadius as Rounding, Sense, Ui, Widget,
-};
+use nih_plug_egui::egui::{vec2, Color32, CornerRadius, Response, Sense, Ui, Widget};
 
 /// Orientation for a Separator Widget
 #[derive(Clone)]
@@ -116,19 +114,15 @@ impl Widget for Separator {
             SeparatorOrientation::Vertical => vec2(total_thickness, ui.available_height()),
             SeparatorOrientation::Horizontal => vec2(ui.available_width(), total_thickness),
         };
-        let (rect, response) = ui.allocate_exact_size(
-            size,
-            Sense::hover()
-        );
+        let (rect, response) = ui.allocate_exact_size(size, Sense::hover());
 
         let color = self.style.color;
         if color.a() > 0 {
-            /*
-            ui.painter() // Visualize padding:
-                .rect_filled(rect, Rounding::same(9999.0), Color32::GRAY);
-            */
-            ui.painter()
-                .rect_filled(rect.shrink(self.style.padding), Rounding::same(u8::MAX), color);
+            ui.painter().rect_filled(
+                rect.shrink(self.style.padding),
+                CornerRadius::same(u8::MAX),
+                color,
+            );
         }
 
         response

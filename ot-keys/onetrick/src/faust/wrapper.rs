@@ -37,11 +37,7 @@ use faust_types::{FaustDsp, ParamIndex, UI};
 
 use default_boxed::DefaultBoxed;
 
-use crate::buffer::{
-    ResizableBuffer,
-    BufferExtras,
-};
-
+use crate::buffer::{BufferExtras, ResizableBuffer};
 
 /// Tracks a DSP to determin if it should be considered active or or inactive
 pub struct SilenceTracker {
@@ -281,7 +277,6 @@ where
         self.update_params();
     }
 
-
     fn post_compute(&mut self) {
         self.untrigger();
         if let Some(index) = self.param_vumeter_left {
@@ -289,7 +284,8 @@ where
                 if value > 0.01 {
                     self.silence_tracker.set_active(); // Keep alive while vu meter is active
                 }
-                self.vu_meter_left.store((value * 1000.0) as i32, Ordering::Relaxed);
+                self.vu_meter_left
+                    .store((value * 1000.0) as i32, Ordering::Relaxed);
             }
         }
         if let Some(index) = self.param_vumeter_right {
@@ -297,7 +293,8 @@ where
                 if value > 0.01 {
                     self.silence_tracker.set_active(); // Keep alive while vu meter is active
                 }
-                self.vu_meter_right.store((value * 1000.0) as i32, Ordering::Relaxed);
+                self.vu_meter_right
+                    .store((value * 1000.0) as i32, Ordering::Relaxed);
             }
         }
     }
@@ -343,7 +340,7 @@ where
     T: FaustDsp<T = f32> + 'static + DefaultBoxed,
 {
     fn initialize(&mut self, sample_rate: usize) -> &mut dyn OneTrickDSPGeneral {
-        if self.sample_rate != sample_rate{
+        if self.sample_rate != sample_rate {
             self.sample_rate = sample_rate;
             self.dsp.init(sample_rate as i32);
         }
@@ -451,7 +448,7 @@ where
                 self.dsp.compute(count as i32, inputs, outputs);
                 self.silence_tracker.update(count, outputs);
             }
-            
+
             self.post_compute();
         } else {
             self.compute_skipped = true;
@@ -464,7 +461,8 @@ where
         if self.compute_skipped {
             to_buffer.clear();
         } else {
-            self.buffer.buffer
+            self.buffer
+                .buffer
                 .write_to_buffer_frames(to_buffer, self.computed_frames);
         }
     }
@@ -474,7 +472,8 @@ where
         if self.compute_skipped {
             return;
         }
-        self.buffer.buffer
+        self.buffer
+            .buffer
             .add_to_buffer_frames(to_buffer, self.computed_frames);
     }
 
@@ -485,7 +484,8 @@ where
                 channel.fill(0.0);
             }
         } else {
-            self.buffer.buffer
+            self.buffer
+                .buffer
                 .write_to_slice_frames(to_buffer, self.computed_frames);
         }
     }
@@ -495,7 +495,8 @@ where
         if self.compute_skipped {
             return;
         }
-        self.buffer.buffer
+        self.buffer
+            .buffer
             .add_to_slice_frames(to_buffer, self.computed_frames);
     }
 
@@ -549,7 +550,7 @@ where
             self.set_param(index, value);
         }
     }
-    
+
     fn mod_wheel(&mut self, value: f32) {
         if let Some(index) = self.param_mod_wheel {
             self.set_param(index, value);
@@ -559,7 +560,7 @@ where
     fn update_sustain(&mut self) {
         if let Some(index) = self.param_sustain {
             let value = self.sustain_active || self.sostenuto_active;
-            self.set_param(index, if value {1.0} else {0.0});
+            self.set_param(index, if value { 1.0 } else { 0.0 });
         }
     }
 
@@ -615,7 +616,7 @@ where
 
     fn hold(&mut self, toggle: bool) {
         if let Some(index) = self.param_hold {
-            self.set_param(index, if toggle {1.0} else {0.0})
+            self.set_param(index, if toggle { 1.0 } else { 0.0 })
         }
     }
 
@@ -670,7 +671,6 @@ where
     fn get_last_note_u8(&self) -> Option<u8> {
         self.last_note.map(|last_note| (last_note + 0.5) as u8)
     }
-
 }
 
 /// Holds values for a Faust Slider or NumEntry
@@ -716,7 +716,6 @@ pub enum ElementType {
     HorizontalBargraph(ElementOutput),
     VerticalBargraph(ElementOutput),
 }
-
 
 /// Holds a Faust Element with Metadata, and links that with a Plugin Parameter
 #[derive(Clone)]
@@ -999,7 +998,6 @@ impl UI<f32> for ParamsBuilder {
     }
 }
 
-
 pub struct OneTrickVoices<T>
 where
     T: FaustDsp<T = f32>, // + 'static,
@@ -1017,7 +1015,6 @@ where
     T: FaustDsp<T = f32> + 'static + DefaultBoxed,
 {
     pub fn new(voice_count: usize) -> Self {
-
         let mut active_voices = Vec::with_capacity(voice_count);
 
         let mut inactive_voices = Vec::new();
@@ -1027,7 +1024,6 @@ where
         }
 
         let sostenuto_notes = Vec::with_capacity(voice_count);
-
 
         Self {
             active_voices,
@@ -1043,7 +1039,6 @@ where
         while self.active_voice_count() > 0 {
             let voice = self.active_voices.remove(0);
             self.inactive_voices.push(voice);
-
         }
         self.for_each_voice(|voice| {
             voice.reset();
@@ -1054,7 +1049,6 @@ where
         while self.active_voice_count() > 0 {
             let voice = self.active_voices.remove(0);
             self.inactive_voices.push(voice);
-
         }
         self.for_each_voice(|voice| {
             voice.panic();
@@ -1067,9 +1061,9 @@ where
     }
 
     fn voice_index_by_note(&self, note: u8) -> Option<usize> {
-        self.active_voices.iter().position(|voice| {
-            voice.get_last_note_u8().unwrap_or(0)==note
-        })
+        self.active_voices
+            .iter()
+            .position(|voice| voice.get_last_note_u8().unwrap_or(0) == note)
     }
 
     fn is_note_active(&self, note: u8) -> bool {
@@ -1082,10 +1076,12 @@ where
 
     pub fn voice_by_id(&mut self, voice_id: Option<i32>) -> Option<&mut OneTrickDSP<T>> {
         voice_id?;
-        
-        if let Some(index) = self.active_voices.iter().position(|voice| {
-            voice.get_voice_id() == voice_id
-        }) {
+
+        if let Some(index) = self
+            .active_voices
+            .iter()
+            .position(|voice| voice.get_voice_id() == voice_id)
+        {
             return Some(&mut self.active_voices[index]);
         }
         None
@@ -1096,12 +1092,14 @@ where
         if self.is_note_active(note) {
             return false;
         }
-        
+
         // Attempt to reuse a voice that was last used for this exact note
         if self.prioritize_retrigger {
-            if let Some(index) = self.inactive_voices.iter().position(|voice| {
-                voice.get_last_note_u8().unwrap_or(0)==note
-            }) {
+            if let Some(index) = self
+                .inactive_voices
+                .iter()
+                .position(|voice| voice.get_last_note_u8().unwrap_or(0) == note)
+            {
                 let mut voice = self.inactive_voices.remove(index);
                 voice.set_voice_id(voice_id);
                 voice.note_on(note as f32, velocity);
@@ -1118,7 +1116,8 @@ where
                 !self.sostenuto_notes.contains(&note)
             }) {
                 index
-            } else { // Every voice using sostenuto!? Just take the oldest one...
+            } else {
+                // Every voice using sostenuto!? Just take the oldest one...
                 0
             };
             let mut voice = self.inactive_voices.remove(index);
@@ -1128,7 +1127,8 @@ where
             voice.note_on(note as f32, velocity);
             self.active_voices.push(voice);
             return true;
-        }  else if self.voice_stealing { // NoVoice Stealing
+        } else if self.voice_stealing {
+            // NoVoice Stealing
             // Make the oldest (first) note the newest (last)
             let mut voice = self.active_voices.remove(0);
             let sostenuto = self.sostenuto_notes.contains(&note);
@@ -1153,18 +1153,18 @@ where
             voice.note_off();
             voice.set_voice_id(None);
             self.inactive_voices.push(voice); // Push to the end of the queue
-
         }
     }
 
     pub fn hold(&mut self, toggle: bool) {
-        self.for_each_voice(|voice|{
+        self.for_each_voice(|voice| {
             voice.hold(toggle);
         });
     }
 
     pub fn for_each_voice<VoiceFn>(&mut self, mut voice_fn: VoiceFn)
-        where VoiceFn: FnMut(&mut OneTrickDSP<T>)
+    where
+        VoiceFn: FnMut(&mut OneTrickDSP<T>),
     {
         for voice in &mut self.active_voices {
             voice_fn(voice);

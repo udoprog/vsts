@@ -27,7 +27,6 @@
 
 use num_enum::TryFromPrimitive;
 
-
 /// List of General MIDI drum notes
 #[derive(PartialEq, TryFromPrimitive)]
 #[repr(u8)]
@@ -59,7 +58,6 @@ pub enum GeneralMidiDrums {
     RideCymbal2 = 59,
 }
 
-
 /// List of General MIDI percussion notes
 #[derive(PartialEq, TryFromPrimitive)]
 #[repr(u8)]
@@ -89,7 +87,6 @@ pub enum GeneralMidiPercussion {
     Cabasa2 = 82,
 }
 
-
 /// List of extended General MIDI percussion notes
 #[derive(PartialEq, TryFromPrimitive)]
 #[repr(u8)]
@@ -100,7 +97,6 @@ pub enum GeneralMidiPercussionEx {
     SideStick = 86,
     TaikoLow = 87,
 }
-
 
 /// List of General MIDI notes
 #[derive(PartialEq, TryFromPrimitive)]
@@ -259,12 +255,12 @@ pub enum MidiCC {
     ExpressionLSB = 43,
     EffectControl1LSB = 44,
     EffectControl2LSB = 45,
-    Sustain = 64, // on/off
+    Sustain = 64,     // on/off
     Portamentao = 65, // on/off
-    Sostenuto = 66, // on/off
-    SoftPedal = 67, // on/off
-    Legato = 68, // on/off
-    HoldPedal2 = 69, // alternative sustain
+    Sostenuto = 66,   // on/off
+    SoftPedal = 67,   // on/off
+    Legato = 68,      // on/off
+    HoldPedal2 = 69,  // alternative sustain
     SoundController1 = 70,
     SoundController2 = 71, //Resonance,
     SoundController3 = 72,
@@ -294,7 +290,7 @@ pub enum MidiCC {
     ChannelMute = 120, //panic
     ResetAllControllers = 121,
     LocalKeyboard = 122, // on/off
-    AllNotes = 123, // on/off
+    AllNotes = 123,      // on/off
     OmniModeOff = 124,
     OmniModeOn = 125,
     MonoMode = 126,

@@ -45,9 +45,13 @@
 */
 
 pub mod modules {
-    mod output { include!("generated/dsp_output.rs"); }
+    mod output {
+        include!("generated/dsp_output.rs");
+    }
     pub use output::DSP_Output;
-    
-    mod piano { include!("generated/dsp_piano.rs"); }
+
+    mod piano {
+        include!("generated/dsp_piano.rs");
+    }
     pub use piano::DSP_Piano;
 }

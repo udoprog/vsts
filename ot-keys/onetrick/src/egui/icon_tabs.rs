@@ -26,12 +26,12 @@
 */
 
 use nih_plug_egui::egui::{
-    Align2, Color32, CornerRadius as Rounding, Rect, Response, Sense, StrokeKind, Ui, UiBuilder, Vec2, Widget, vec2
+    vec2, Align2, Color32, CornerRadius, Rect, Response, Sense, StrokeKind, Ui, UiBuilder, Vec2,
+    Widget,
 };
 
 use super::icons::{Dingbat, IconDrawer};
 use crate::color::InterpolateColors;
-
 
 /// Style info for an IconTabs
 #[derive(Clone)]
@@ -39,20 +39,20 @@ pub struct IconTabsStyle {
     /// Color of the backgrond panel
     pub panel_color: Color32,
 
-    /// Rounding of the background panel
-    pub panel_rounding: Rounding,
+    /// Corner radius of the background panel
+    pub panel_rounding: CornerRadius,
 
     /// Color of a tab icon
     pub color: Color32,
-    
+
     /// Color of a tab icon when active
     pub color_active: Color32,
 
     /// Color of a tab background when active
     pub tab_color_active: Color32,
 
-    /// Rounding of a tab background
-    pub tab_rounding: Rounding,
+    /// CornerRadius of a tab background
+    pub tab_rounding: CornerRadius,
 
     /// Amount to expand the tab when hovering
     pub tab_hover_resize: Vec2,
@@ -64,11 +64,11 @@ impl Default for IconTabsStyle {
     fn default() -> Self {
         Self {
             panel_color: Color32::LIGHT_GRAY,
-            panel_rounding: Rounding::ZERO,
+            panel_rounding: CornerRadius::ZERO,
             color: Color32::DARK_GRAY,
             color_active: Color32::DARK_RED,
             tab_color_active: Color32::WHITE,
-            tab_rounding: Rounding::same(5),
+            tab_rounding: CornerRadius::same(5),
             icon_padding: 10.0,
             tab_hover_resize: Vec2::new(0.0, 2.0),
         }
@@ -78,7 +78,6 @@ impl Default for IconTabsStyle {
 /// Style info for a single Tab
 #[derive(Clone)]
 pub struct IconTabStyle {
-
     /// Dingbat Icon to draw on the tab
     pub dingbat: Dingbat,
 
@@ -98,7 +97,6 @@ impl Default for IconTabStyle {
     }
 }
 impl IconTabStyle {
-
     /// Set the Icon to a Dingbat
     pub fn with_dingbat(mut self, dingbat: Dingbat) -> Self {
         self.dingbat = dingbat;
@@ -162,10 +160,10 @@ impl<'a> Widget for IconTabs<'a> {
                     if response.clicked() {
                         response.request_focus();
                     }
-                    
+
                     let is_active_or_hovered = is_active || response.hovered();
                     let hover_amount = ui.ctx().animate_bool_with_time(
-                        response.id,//.with("hover"),
+                        response.id, //.with("hover"),
                         response.hovered(),
                         0.100,
                     );
@@ -174,7 +172,8 @@ impl<'a> Widget for IconTabs<'a> {
                     let color = if is_active_or_hovered {
                         self.style.tab_color_active
                     } else if hover_amount > 0.0 {
-                        Color32::TRANSPARENT.interpolate_to(self.style.tab_color_active, hover_amount)
+                        Color32::TRANSPARENT
+                            .interpolate_to(self.style.tab_color_active, hover_amount)
                     } else {
                         Color32::TRANSPARENT
                     };
@@ -191,11 +190,8 @@ impl<'a> Widget for IconTabs<'a> {
                     */
 
                     if color.a() > 0 {
-                        ui.painter().rect_filled(
-                            expanded_rect,
-                            self.style.tab_rounding,
-                            color,
-                        );
+                        ui.painter()
+                            .rect_filled(expanded_rect, self.style.tab_rounding, color);
                     }
 
                     // Draw Icon
@@ -215,7 +211,12 @@ impl<'a> Widget for IconTabs<'a> {
                     if response.has_focus() {
                         let focus_stroke = ui.style().visuals.selection.stroke;
                         if !focus_stroke.is_empty() {
-                            ui.painter().rect_stroke(expanded_rect, self.style.tab_rounding, focus_stroke, StrokeKind::Middle);
+                            ui.painter().rect_stroke(
+                                expanded_rect,
+                                self.style.tab_rounding,
+                                focus_stroke,
+                                StrokeKind::Middle,
+                            );
                         }
                     }
 

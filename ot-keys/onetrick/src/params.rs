@@ -25,9 +25,9 @@
     OneTrick.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-use std::sync::Arc;
-use std::sync::atomic::{AtomicI32, Ordering};
 use parking_lot::RwLock;
+use std::sync::atomic::{AtomicI32, Ordering};
+use std::sync::Arc;
 
 use nih_plug::prelude::*;
 
@@ -101,7 +101,6 @@ pub enum FieldType {
 
 /// Container for OneTrick plugin parameters and editor state
 pub struct OneTrickPluginParams {
-
     /// The editor state, saved together with the parameter state so the custom scaling can be
     /// restored.
     #[cfg(feature = "egui")]
@@ -114,7 +113,6 @@ pub struct OneTrickPluginParams {
     */
     //#[id = "global_volume"] //Global_Volume dB
     //pub global_volume: FloatParam,
-
     /// Map of parameters (export_id, param, group)
     pub params: Vec<(String, ParamType, String)>,
 
@@ -122,13 +120,12 @@ pub struct OneTrickPluginParams {
 
     // /// True the Editor fields have already been loaded
     // editor_fields_loaded: bool,
-    
+
     // /// Editor fields are only deserialized once at start
     // pub editor_fields: BTreeMap<String, Value>,
 
     // /// Preset fields are deserialized every time a preset is loaded
     // pub preset_fields: BTreeMap<String, Value>,
-
     pub defaults_preset: Option<Preset>,
 }
 
@@ -145,7 +142,6 @@ impl Default for OneTrickPluginParams {
             // editor_fields_loaded: false, // Only read editor fields on the first load
             // editor_fields: BTreeMap::new(),
             // preset_fields: BTreeMap::new(),
-
             defaults_preset: None,
         }
     }
@@ -159,7 +155,7 @@ impl OneTrickPluginParams {
         if let Some(preset) = &self.defaults_preset {
             if let Some(value) = preset.params.get(name) {
                 if let Ok(value) = serde_json::from_value::<bool>(value.clone()) {
-                    return value
+                    return value;
                 }
             }
         }
@@ -169,20 +165,20 @@ impl OneTrickPluginParams {
         if let Some(preset) = &self.defaults_preset {
             if let Some(value) = preset.params.get(name) {
                 if let Ok(value) = serde_json::from_value::<i32>(value.clone()) {
-                    return value
+                    return value;
                 }
             }
-    }
+        }
         default_value
     }
     fn get_defaults_float(&self, name: &str, default_value: f32) -> f32 {
         if let Some(preset) = &self.defaults_preset {
             if let Some(value) = preset.params.get(name) {
                 if let Ok(value) = serde_json::from_value::<f32>(value.clone()) {
-                    return value
+                    return value;
                 }
             }
-    }
+        }
         default_value
     }
 
@@ -252,37 +248,38 @@ impl OneTrickPluginParams {
                     let export_type = dsp_param.meta("type").unwrap_or(default_export_type);
                     match export_type {
                         "bool" => {
-                            let default_value = self.get_defaults_bool(&export_id, dsp_param.init() > 0.5);
-                            let mut base_param = BoolParam::new(export_id.to_string(), default_value)
-                                .with_value_to_string(Arc::new(|v| {
-                                    (if v { "on" } else { "off" }).to_string()
-                                }))
-                                .with_string_to_value(Arc::new(|s| {
-                                    Some(s=="on")
-                                }));
+                            let default_value =
+                                self.get_defaults_bool(&export_id, dsp_param.init() > 0.5);
+                            let mut base_param =
+                                BoolParam::new(export_id.to_string(), default_value)
+                                    .with_value_to_string(Arc::new(|v| {
+                                        (if v { "on" } else { "off" }).to_string()
+                                    }))
+                                    .with_string_to_value(Arc::new(|s| Some(s == "on")));
 
                             if let Some(enum_names) = dsp_param.meta("enum") {
                                 let enum_names_v2s = enum_names.to_owned();
                                 let enum_names_s2v = enum_names.to_owned();
-                                base_param = base_param.with_value_to_string(Arc::new(move |v| {
-                                    let names = enum_names_v2s.split(',');
-                                    for (index, name) in names.into_iter().enumerate() {
-                                        if v == (index != 0) {
-                                            return name.to_string();
+                                base_param = base_param
+                                    .with_value_to_string(Arc::new(move |v| {
+                                        let names = enum_names_v2s.split(',');
+                                        for (index, name) in names.into_iter().enumerate() {
+                                            if v == (index != 0) {
+                                                return name.to_string();
+                                            }
                                         }
-                                    }
-                                    "?".to_string()
-                                })).with_string_to_value(Arc::new(move |s| {
-                                    let names = enum_names_s2v.split(',');
-                                    for (index, name) in names.into_iter().enumerate() {
-                                        if name == s {
-                                            return Some(index != 0);
+                                        "?".to_string()
+                                    }))
+                                    .with_string_to_value(Arc::new(move |s| {
+                                        let names = enum_names_s2v.split(',');
+                                        for (index, name) in names.into_iter().enumerate() {
+                                            if name == s {
+                                                return Some(index != 0);
+                                            }
                                         }
-                                    }
-                                    Some(false)
-                                }));
+                                        Some(false)
+                                    }));
                             }
-    
 
                             let param = ParamType::BoolParam(base_param);
 
@@ -294,8 +291,9 @@ impl OneTrickPluginParams {
                                 dsp_param.set_plugin_param(param.as_ptr());
                             }
                         }
-                        "int"|"enum" => {
-                            let default_value = self.get_defaults_int(&export_id, (dsp_param.init().round()) as i32);
+                        "int" | "enum" => {
+                            let default_value = self
+                                .get_defaults_int(&export_id, (dsp_param.init().round()) as i32);
                             let mut base_param = IntParam::new(
                                 export_id.to_string(),
                                 default_value,
@@ -309,23 +307,25 @@ impl OneTrickPluginParams {
                             if let Some(enum_names) = dsp_param.meta("enum") {
                                 let enum_names_v2s = enum_names.to_owned();
                                 let enum_names_s2v = enum_names.to_owned();
-                                base_param = base_param.with_value_to_string(Arc::new(move |v| {
-                                    let names = enum_names_v2s.split(',');
-                                    for (index, name) in names.into_iter().enumerate() {
-                                        if v == index as i32 {
-                                            return name.to_string();
+                                base_param = base_param
+                                    .with_value_to_string(Arc::new(move |v| {
+                                        let names = enum_names_v2s.split(',');
+                                        for (index, name) in names.into_iter().enumerate() {
+                                            if v == index as i32 {
+                                                return name.to_string();
+                                            }
                                         }
-                                    }
-                                    "?".to_string()
-                                })).with_string_to_value(Arc::new(move |s| {
-                                    let names = enum_names_s2v.split(',');
-                                    for (index, name) in names.into_iter().enumerate() {
-                                        if name == s {
-                                            return Some(index as i32);
+                                        "?".to_string()
+                                    }))
+                                    .with_string_to_value(Arc::new(move |s| {
+                                        let names = enum_names_s2v.split(',');
+                                        for (index, name) in names.into_iter().enumerate() {
+                                            if name == s {
+                                                return Some(index as i32);
+                                            }
                                         }
-                                    }
-                                    Some(0)
-                                }));
+                                        Some(0)
+                                    }));
                             }
                             let param = ParamType::IntParam(base_param);
 
@@ -352,7 +352,6 @@ impl OneTrickPluginParams {
                             },
                                 */
 
-                            
                             let range = match dsp_param.unit() {
                                 "dB" | "db" => FloatRange::Skewed {
                                     min: dsp_param.min(),
@@ -368,16 +367,26 @@ impl OneTrickPluginParams {
                                         1.0
                                     },
                                 },
-                                "Hz" | "hz" | "kHz" | "khz" | "mHz" | "mhz" | "rpm" => FloatRange::Skewed {
-                                    min: dsp_param.min(),
-                                    max: dsp_param.max(),
-                                    factor: 0.5f32.log(
-                                        (2.0f32.powf((dsp_param.min().log2() + dsp_param.max().log2())/2.0) - dsp_param.min())
-                                            / (dsp_param.max() - dsp_param.min()),
-                                    ),
-                                },
+                                "Hz" | "hz" | "kHz" | "khz" | "mHz" | "mhz" | "rpm" => {
+                                    FloatRange::Skewed {
+                                        min: dsp_param.min(),
+                                        max: dsp_param.max(),
+                                        factor: 0.5f32.log(
+                                            (2.0f32.powf(
+                                                (dsp_param.min().log2() + dsp_param.max().log2())
+                                                    / 2.0,
+                                            ) - dsp_param.min())
+                                                / (dsp_param.max() - dsp_param.min()),
+                                        ),
+                                    }
+                                }
                                 _ => {
-                                    let skew_factor = dsp_param.meta("skew").unwrap_or("0.0").parse::<f32>().ok().unwrap();
+                                    let skew_factor = dsp_param
+                                        .meta("skew")
+                                        .unwrap_or("0.0")
+                                        .parse::<f32>()
+                                        .ok()
+                                        .unwrap();
                                     if let Some(center) = dsp_param.meta("center") {
                                         let center = center.parse::<f32>().ok().unwrap();
                                         // SymmetricalSkewed is linear up until center, then skewed
@@ -385,13 +394,13 @@ impl OneTrickPluginParams {
                                             min: dsp_param.min(),
                                             max: dsp_param.max(),
                                             center,
-                                            factor: FloatRange::skew_factor(skew_factor)
+                                            factor: FloatRange::skew_factor(skew_factor),
                                         }
                                     } else if skew_factor != 0.0 {
                                         FloatRange::Skewed {
                                             min: dsp_param.min(),
                                             max: dsp_param.max(),
-                                            factor: FloatRange::skew_factor(skew_factor)
+                                            factor: FloatRange::skew_factor(skew_factor),
                                         }
                                     } else {
                                         FloatRange::Linear {
@@ -401,41 +410,55 @@ impl OneTrickPluginParams {
                                     }
                                 }
                             };
-                            let label_precision = if (dsp_param.max() - dsp_param.min()).abs() < 10.0 {
-                                2
-                            } else {
-                                1
-                            };
+                            let label_precision =
+                                if (dsp_param.max() - dsp_param.min()).abs() < 10.0 {
+                                    2
+                                } else {
+                                    1
+                                };
                             let min_value = dsp_param.min();
 
                             // We could skip string_to_value() here because we're only adjusting precision
                             // This shouldn't affect parsing, but we'll include it anyway for completeness.
                             let unit_s2v = dsp_param.unit_static();
-                            let default_value = self.get_defaults_float(&export_id, dsp_param.init());
-                            let mut base_param = FloatParam::new(export_id.to_string(), default_value, range)
-                                .with_unit(dsp_param.unit_static())
-                                .with_value_to_string(Arc::new(move |v| {
-                                    format!("{value:.precision$}", precision = label_precision, value = v)
-                                })).with_string_to_value(Arc::new(move |s| {
-                                    s.trim().trim_end_matches(unit_s2v).parse().ok()
-                                }));
+                            let default_value =
+                                self.get_defaults_float(&export_id, dsp_param.init());
+                            let mut base_param =
+                                FloatParam::new(export_id.to_string(), default_value, range)
+                                    .with_unit(dsp_param.unit_static())
+                                    .with_value_to_string(Arc::new(move |v| {
+                                        format!(
+                                            "{value:.precision$}",
+                                            precision = label_precision,
+                                            value = v
+                                        )
+                                    }))
+                                    .with_string_to_value(Arc::new(move |s| {
+                                        s.trim().trim_end_matches(unit_s2v).parse().ok()
+                                    }));
                             if let Some(min_label) = dsp_param.meta("minlabel") {
                                 let min_label_v2s = min_label.to_owned();
                                 let min_label_s2v = min_label.to_owned();
                                 let unit_s2v = dsp_param.unit_static();
-                                base_param = base_param.with_value_to_string(Arc::new(move |v| {
-                                    if v == min_value {
-                                        min_label_v2s.to_string()
-                                    } else {
-                                        format!("{value:.precision$}", precision = label_precision, value = v)
-                                    }
-                                })).with_string_to_value(Arc::new(move |s| {
-                                    let s = s.trim().trim_end_matches(unit_s2v);
-                                    if s == min_label_s2v {
-                                        return Some(min_value);
-                                    }
-                                    s.parse().ok()
-                                }));
+                                base_param = base_param
+                                    .with_value_to_string(Arc::new(move |v| {
+                                        if v == min_value {
+                                            min_label_v2s.to_string()
+                                        } else {
+                                            format!(
+                                                "{value:.precision$}",
+                                                precision = label_precision,
+                                                value = v
+                                            )
+                                        }
+                                    }))
+                                    .with_string_to_value(Arc::new(move |s| {
+                                        let s = s.trim().trim_end_matches(unit_s2v);
+                                        if s == min_label_s2v {
+                                            return Some(min_value);
+                                        }
+                                        s.parse().ok()
+                                    }));
                             }
                             let param = ParamType::FloatParam(base_param);
                             self.params
@@ -611,7 +634,6 @@ impl OneTrickPluginParams {
         }
         None
     }
-
 }
 
 unsafe impl Params for OneTrickPluginParams {
@@ -636,7 +658,6 @@ unsafe impl Params for OneTrickPluginParams {
         result
     }
 
-
     fn serialize_fields(&self) -> BTreeMap<String, String> {
         // nih_log!("Serializing fields");
 
@@ -644,12 +665,8 @@ unsafe impl Params for OneTrickPluginParams {
         let mut result = BTreeMap::new();
         for (id, value) in fields.iter() {
             let serialized_value: String = match value {
-                FieldType::StringField(v) => {
-                    v.get()
-                },
-                FieldType::IntField(v) => {
-                    serde_json::to_string(&(v.get())).unwrap()
-                },
+                FieldType::StringField(v) => v.get(),
+                FieldType::IntField(v) => serde_json::to_string(&(v.get())).unwrap(),
             };
             result.insert(id.clone(), serialized_value);
         }
@@ -668,12 +685,13 @@ unsafe impl Params for OneTrickPluginParams {
                             if let Ok(Some(parsed)) = serde_json::from_str::<Option<i32>>(value) {
                                 v.set(parsed);
                             }
-                        },
-                        FieldType::StringField(v) => { v.set(value); },
+                        }
+                        FieldType::StringField(v) => {
+                            v.set(value);
+                        }
                     }
                 }
             }
         }
     }
-
 }
