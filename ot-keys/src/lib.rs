@@ -162,7 +162,7 @@ impl OneTrickKeys {
         //style.override_text_style = Some(TextStyle::Body);
 
         //style.widgets.noninteractive.bg_stroke =
-        //    Stroke::new(2.0, palette.grey().alpha(0.666).to_color32());
+        //    Stroke::new(2.0_f32, palette.grey().alpha(0.666).to_color32());
 
         // Set the base Style
         style.visuals = style::Visuals::dark();
@@ -178,7 +178,7 @@ impl OneTrickKeys {
         };
         style.visuals.override_text_color = Some(Color32::WHITE);
 
-        style.visuals.selection.stroke = Stroke::new(2.0, Color32::WHITE);
+        style.visuals.selection.stroke = Stroke::new(2.0_f32, Color32::WHITE);
         ctx.set_style(style);
 
         // Tell egui to use these fonts:

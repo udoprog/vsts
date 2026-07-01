@@ -34,11 +34,11 @@ parking_lot = { version = "0.12" }
 
 # NOTE: egui_extras must match nih-plug's egui version!
 egui_extras = { version = "0.27.2", features = ["image", "svg"], optional = true }
-image = { version="0.24", optional = true }
+image = { version="0.25.10", optional = true }
 
 # Presets
 serde = "1.0"
 serde_json = "1.0"
-directories = "5.0"
+directories = "6.0.0"
 open = "5.0"
-rand = "0.8"
+rand = "0.10.1"

@@ -32,8 +32,6 @@ use std::collections::{BTreeMap, HashMap};
 use serde::{Deserialize, Serialize, Serializer};
 use serde_json::{json, Value};
 
-use rand::Rng;
-
 /// Tag for Factory presets
 pub const FACTORY_TAG: &str = "Factory";
 
@@ -153,7 +151,7 @@ impl Preset {
     /// Returns a new Factory Default Preset from OneTrickPluginParam default values
     pub fn from_random_values(params: &OneTrickPluginParams) -> Self {
         let mut result = Self {
-            name: format!("Random {}", rand::thread_rng().gen_range(0..10000)).to_string(),
+            name: format!("Random {}", rand::random_range(0..10000)).to_string(),
             ..Default::default()
         };
 
@@ -161,16 +159,16 @@ impl Preset {
         for (id, param, _group) in &params.params {
             match param {
                 ParamType::BoolParam(_p) => {
-                    let value = rand::thread_rng().gen_range(0..2) != 0;
+                    let value = rand::random::<bool>();
                     result.params.insert(id.to_string(), json!(value));
                 }
                 ParamType::FloatParam(p) => {
-                    let n = rand::thread_rng().gen_range(0..10000) as f32 / 10000.0;
+                    let n = rand::random::<f32>();
                     let value = p.preview_plain(n);
                     result.params.insert(id.to_string(), json!(value));
                 }
                 ParamType::IntParam(p) => {
-                    let n = rand::thread_rng().gen_range(0..10000) as f32 / 10000.0;
+                    let n = rand::random::<f32>();
                     let value = p.preview_plain(n);
                     result.params.insert(id.to_string(), json!(value));
                 }

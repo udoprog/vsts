@@ -686,7 +686,11 @@ impl PresetList {
                                             if ui.button("Cancel").clicked() {
                                                 should_close = true;
                                             }
-                                            ui.set_enabled(preset_manager.has_write_access());
+
+                                            if !preset_manager.has_write_access() {
+                                                ui.disable();
+                                            }
+
                                             if ui.button("Save!").clicked() {
                                                 preset_manager.save_active(params);
                                                 if preset_manager.has_write_access() {
@@ -700,7 +704,7 @@ impl PresetList {
                                                     should_close = true;
                                                 }
                                             }
-                                            ui.set_enabled(true);
+
                                             if should_close {
                                                 ui.data_mut(|r| {
                                                     *(r.get_temp_mut_or::<bool>(
