@@ -365,26 +365,26 @@ impl Preset {
     }
 
     /// Returns true if the Preset has a tag, case sensitive
-    pub fn has_tag_case_sensitive<S: Into<String>>(&self, tag: S) -> bool {
-        let tag = tag.into();
-        self.tags.iter().any(|t| *t == tag)
+    pub fn has_tag_case_sensitive(&self, tag: impl AsRef<str>) -> bool {
+        let tag = tag.as_ref();
+        self.tags.iter().any(|t| t == tag)
     }
 
     /// Returns optional index of the tag, case sensitive
-    pub fn tag_index_case_sensitive<S: Into<String>>(&self, tag: S) -> Option<usize> {
-        let tag = tag.into();
+    pub fn tag_index_case_sensitive(&self, tag: impl AsRef<str>) -> Option<usize> {
+        let tag = tag.as_ref();
         self.tags.iter().position(|t| *t == tag)
     }
 
     /// Returns true if the Preset has a tag, case insensitive
-    pub fn has_tag<S: Into<String>>(&self, tag: S) -> bool {
-        let tag = tag.into();
+    pub fn has_tag(&self, tag: impl AsRef<str>) -> bool {
+        let tag = tag.as_ref();
         self.tags.iter().any(|t| t.eq_ignore_ascii_case(&tag))
     }
 
     /// Returns optional index of the tag, case insensitive
-    pub fn tag_index<S: Into<String>>(&self, tag: S) -> Option<usize> {
-        let tag = tag.into();
+    pub fn tag_index(&self, tag: impl AsRef<str>) -> Option<usize> {
+        let tag = tag.as_ref();
         self.tags.iter().position(|t| t.eq_ignore_ascii_case(&tag))
     }
 
@@ -414,58 +414,63 @@ impl Preset {
     }
 
     /// Sets the list of tags from a comma-separated list of tags
-    pub fn set_tags_string<S: Into<String>>(&mut self, text: S) {
-        let text = text.into();
+    pub fn set_tags_string(&mut self, text: impl AsRef<str>) {
+        let text = text.as_ref();
+
         self.tags.clear();
-        for tag in text.replace(',', " ").split(' ') {
-            self.add_tag(&tag.trim_start().trim_end().to_string());
+
+        for tag in text.split(|c| matches!(c, ',' | ' ')) {
+            let tag = tag.trim();
+
+            if tag.is_empty() {
+                continue;
+            }
+
+            self.add_tag(tag.to_string());
         }
     }
 
     /// Adds a tag to the Preset
-    pub fn add_tag<S: Into<String>>(&mut self, tag: S) {
-        let tag = tag.into();
+    pub fn add_tag(&mut self, tag: impl AsRef<str>) {
+        let tag = tag.as_ref();
         if !tag.is_empty() && !self.has_tag(&tag) {
             self.tags.push(tag.to_string());
         }
     }
 
     /// Adds a tag to the Preset
-    pub fn insert_tag<S: Into<String>>(&mut self, index: usize, tag: S) {
-        let tag = tag.into();
+    pub fn insert_tag(&mut self, index: usize, tag: impl AsRef<str>) {
+        let tag = tag.as_ref();
         if !tag.is_empty() && !self.has_tag(&tag) {
             self.tags.insert(index, tag.to_string());
         }
     }
 
     /// Removes a tag to the Preset
-    pub fn remove_tag<S: Into<String>>(&mut self, tag: S) {
-        let tag = tag.into();
+    pub fn remove_tag(&mut self, tag: impl AsRef<str>) {
+        let tag = tag.as_ref();
         if let Some(index) = self.tag_index(tag) {
             self.tags.remove(index);
         }
     }
 
     /// Returns true if the Preset's info contains a key
-    pub fn has_info<S: Into<String>>(&self, key: S) -> bool {
-        self.info.contains_key(&key.into())
+    pub fn has_info(&self, key: impl AsRef<str>) -> bool {
+        self.info.contains_key(key.as_ref())
     }
 
     /// Adds or updates a key of info in the Preset
-    pub fn set_info<S: Into<String>>(&mut self, key: S, value: S) {
-        self.info.insert(key.into(), value.into());
+    pub fn set_info(&mut self, key: impl AsRef<str>, value: impl Into<String>) {
+        self.info.insert(key.as_ref().to_string(), value.into());
     }
 
     /// Returns info by key (or "" if not found)
-    pub fn get_info<S: Into<String>>(&self, key: S) -> String {
-        self.info
-            .get(&key.into())
-            .unwrap_or(&"".to_string())
-            .to_string()
+    pub fn get_info(&self, key: impl AsRef<str>) -> String {
+        self.info.get(key.as_ref()).cloned().unwrap_or_default()
     }
 
     /// Removes a key of info in the PReset
-    pub fn remove_info<S: Into<String>>(&mut self, key: S) {
-        self.info.remove(&key.into());
+    pub fn remove_info(&mut self, key: impl AsRef<str>) {
+        self.info.remove(key.as_ref());
     }
 }

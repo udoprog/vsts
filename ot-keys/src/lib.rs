@@ -260,7 +260,7 @@ impl Plugin for OneTrickKeys {
         self.dsp_output.borrow_mut().reset();
         self.dsp_voices.borrow_mut().reset();
 
-        for (_index, indicator) in self.piano_indicator.iter().enumerate() {
+        for indicator in self.piano_indicator.iter() {
             indicator.store(0, Ordering::Relaxed);
         }
 
@@ -276,10 +276,7 @@ impl Plugin for OneTrickKeys {
         #[cfg(feature = "profile")]
         let dsp_timer = std::time::Instant::now();
 
-        let _is_standalone = match context.plugin_api() {
-            PluginApi::Standalone => true,
-            _ => false,
-        };
+        let _is_standalone = matches!(context.plugin_api(), PluginApi::Standalone);
 
         ProcessEx::process_split_notes(
             buffer,
@@ -302,7 +299,7 @@ impl Plugin for OneTrickKeys {
                         cc,
                         value,
                     } => {
-                        if let Some(cc) = MidiCC::try_from(cc).ok() {
+                        if let Ok(cc) = MidiCC::try_from(cc) {
                             match cc {
                                 MidiCC::ModWheel => {
                                     #[cfg(feature = "fake_sustain")]
@@ -428,7 +425,7 @@ impl Plugin for OneTrickKeys {
                 {
                     let mut dsp = self.dsp_output.borrow_mut();
                     if dsp.is_active() {
-                        dsp.compute_to(frames, &self.accum_buffer.buffer.as_slice_actually_immutable(), Some(output));
+                        dsp.compute_to(frames, self.accum_buffer.buffer.as_slice_actually_immutable(), Some(output));
                     } else {
                         dsp.skip_compute();
                     }

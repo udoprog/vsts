@@ -70,8 +70,8 @@ impl SilenceTracker {
             let silence_frame_skip = 1; // Doesn't work yet...
 
             if channel_count == 1 {
-                for i in 0..frames {
-                    if (buffer[0][i]).abs() > 0.001 {
+                for sample in buffer[0].iter().take(frames) {
+                    if sample.abs() > 0.001 {
                         self.counter = 0;
                     } else {
                         self.counter += silence_frame_skip;
@@ -79,6 +79,9 @@ impl SilenceTracker {
                 }
             } else {
                 let mut ch = 0;
+                // `ch` cycles through channels each iteration, so `i` must index into the
+                // per-channel slice directly — a plain iterator won't express this.
+                #[allow(clippy::needless_range_loop)]
                 for i in 0..frames {
                     ch = (ch + 1) % channel_count;
                     if (buffer[ch][i]).abs() > 0.001
@@ -1110,16 +1113,16 @@ where
 
         // Attempt to reuse the oldest voice, preferably not one using sostenuto
         if !self.inactive_voices.is_empty() {
-            // Search for oldest voice not using sostenuto
-            let index = if let Some(index) = self.inactive_voices.iter().position(|voice| {
-                let note = voice.get_last_note_u8().unwrap_or(0);
-                !self.sostenuto_notes.contains(&note)
-            }) {
-                index
-            } else {
-                // Every voice using sostenuto!? Just take the oldest one...
-                0
-            };
+            // Search for oldest voice not using sostenuto; if every voice uses sostenuto,
+            // fall back to the oldest one (index 0).
+            let index = self
+                .inactive_voices
+                .iter()
+                .position(|voice| {
+                    let note = voice.get_last_note_u8().unwrap_or(0);
+                    !self.sostenuto_notes.contains(&note)
+                })
+                .unwrap_or_default();
             let mut voice = self.inactive_voices.remove(index);
             let sostenuto = self.sostenuto_notes.contains(&note);
             voice.set_voice_id(voice_id);

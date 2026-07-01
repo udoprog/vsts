@@ -283,7 +283,7 @@ impl<'buffer> BufferSlicer for Buffer<'buffer> {
             .map(move |ch| &mut ch[start_index..end_index]);
         let result: [_; N] = std::array::from_fn(|_| iter.next().unwrap());
         // Ensure that iterator finished
-        nih_debug_assert!(matches!(iter.next(), None));
+        nih_debug_assert!(iter.next().is_none());
         result
     }
     fn slice1ch_range_mut(&mut self, start_index: usize, end_index: usize) -> [&mut [f32]; 1] {
@@ -304,7 +304,7 @@ impl<'buffer> BufferSlicer for Buffer<'buffer> {
         let mut iter = slice.iter();
         let result: [_; N] = std::array::from_fn(|_| *iter.next().unwrap());
         // Ensure that iterator finished
-        nih_debug_assert!(matches!(iter.next(), None));
+        nih_debug_assert!(iter.next().is_none());
         result
     }
     fn slice1ch(&self) -> [&[f32]; 1] {
