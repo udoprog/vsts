@@ -9,8 +9,8 @@ use crate::MouseCursor;
 use super::cursor;
 
 pub(crate) struct Atoms {
-    pub wm_protocols: Option<u32>,
-    pub wm_delete_window: Option<u32>,
+    pub wm_protocols: Option<xcb::x::Atom>,
+    pub wm_delete_window: Option<xcb::x::Atom>,
 }
 
 pub struct XcbConnection {
@@ -24,15 +24,17 @@ pub struct XcbConnection {
 
 macro_rules! intern_atoms {
     ($conn:expr, $( $name:ident ),+ ) => {{
+        // splitting request and reply to improve throughput
         $(
             #[allow(non_snake_case)]
-            let $name = xcb::intern_atom($conn, true, stringify!($name));
+            let $name = $conn.send_request(&xcb::x::InternAtom {
+                only_if_exists: true,
+                name: stringify!($name).as_bytes(),
+            });
         )+
 
-        // splitting request and reply to improve throughput
-
         (
-            $( $name.get_reply()
+            $( $conn.wait_for_reply($name)
                 .map(|r| r.atom())
                 .ok()),+
         )
@@ -40,10 +42,10 @@ macro_rules! intern_atoms {
 }
 
 impl XcbConnection {
-    pub fn new() -> Result<Self, xcb::base::ConnError> {
+    pub fn new() -> Result<Self, xcb::ConnError> {
         let (conn, xlib_display) = xcb::Connection::connect_with_xlib_display()?;
 
-        conn.set_event_queue_owner(xcb::base::EventQueueOwner::Xcb);
+        conn.set_event_queue_owner(xcb::EventQueueOwner::Xcb);
 
         let (wm_protocols, wm_delete_window) = intern_atoms!(&conn, WM_PROTOCOLS, WM_DELETE_WINDOW);
 
@@ -75,8 +77,8 @@ impl XcbConnection {
                     let mut value = XrmValue { size: 0, addr: std::ptr::null_mut() };
 
                     let mut value_type: *mut std::os::raw::c_char = std::ptr::null_mut();
-                    let name_c_str = CString::new("Xft.dpi").unwrap();
-                    let c_str = CString::new("Xft.Dpi").unwrap();
+                    let name_c_str = CString::new("Xft.dpi").ok()?;
+                    let c_str = CString::new("Xft.Dpi").ok()?;
 
                     let dpi = if XrmGetResource(
                         db,
@@ -111,7 +113,7 @@ impl XcbConnection {
     fn get_scaling_screen_dimensions(&self) -> Option<f64> {
         // Figure out screen information
         let setup = self.conn.get_setup();
-        let screen = setup.roots().nth(self.xlib_display as usize).unwrap();
+        let screen = setup.roots().nth(self.xlib_display as usize)?;
 
         // Get the DPI from the screen struct
         //

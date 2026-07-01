@@ -69,6 +69,18 @@ pub enum GlError {
     CreationFailed(platform::CreationFailedError),
 }
 
+impl std::fmt::Display for GlError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            GlError::InvalidWindowHandle => write!(f, "invalid window handle"),
+            GlError::VersionNotSupported => write!(f, "the requested OpenGL version is not supported"),
+            GlError::CreationFailed(e) => write!(f, "OpenGL context creation failed: {:?}", e),
+        }
+    }
+}
+
+impl std::error::Error for GlError {}
+
 pub struct GlContext {
     context: platform::GlContext,
     phantom: PhantomData<*mut ()>,

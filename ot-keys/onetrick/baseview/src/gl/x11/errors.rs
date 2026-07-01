@@ -29,7 +29,7 @@ impl<'a> XErrorHandler<'a> {
 
         match error {
             None => Ok(()),
-            Some(inner) => Err(XLibError { inner }),
+            Some(inner) => Err(XLibError::from_event(inner)),
         }
     }
 
@@ -83,40 +83,63 @@ impl<'a> XErrorHandler<'a> {
     }
 }
 
+/// An owned snapshot of an X11 error.
+///
+/// The human-readable message is resolved eagerly from the display connection when the
+/// error is captured, so the struct holds no raw pointers. That keeps it `Send + Sync`,
+/// which lets it travel through `anyhow` as a captured error source.
 pub struct XLibError {
-    inner: xlib::XErrorEvent,
+    error_code: u8,
+    error_message: String,
+    minor_code: u8,
+    request_code: u8,
+    type_: i32,
+    resource_id: xlib::XID,
+    serial: xlib::XID,
 }
 
 impl XLibError {
-    pub fn get_display_name(&self, buf: &mut [u8]) -> &CStr {
+    fn from_event(event: xlib::XErrorEvent) -> Self {
+        Self {
+            error_code: event.error_code,
+            error_message: Self::resolve_message(event.display, event.error_code),
+            minor_code: event.minor_code,
+            request_code: event.request_code,
+            type_: event.type_,
+            resource_id: event.resourceid,
+            serial: event.serial,
+        }
+    }
+
+    fn resolve_message(display: *mut xlib::Display, error_code: u8) -> String {
+        let mut buf = [0u8; 255];
         unsafe {
             xlib::XGetErrorText(
-                self.inner.display,
-                self.inner.error_code.into(),
+                display,
+                error_code.into(),
                 buf.as_mut_ptr().cast(),
                 (buf.len() - 1) as i32,
             );
         }
 
         *buf.last_mut().unwrap() = 0;
-        // SAFETY: whatever XGetErrorText did or not, we guaranteed there is a nul byte at the end of the buffer
-        unsafe { CStr::from_ptr(buf.as_mut_ptr().cast()) }
+        // SAFETY: whatever XGetErrorText did or not, we guaranteed there is a nul byte at the
+        // end of the buffer.
+        let message = unsafe { CStr::from_ptr(buf.as_ptr().cast()) };
+        message.to_string_lossy().into_owned()
     }
 }
 
 impl Debug for XLibError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let mut buf = [0; 255];
-        let display_name = self.get_display_name(&mut buf).to_string_lossy();
-
         f.debug_struct("XLibError")
-            .field("error_code", &self.inner.error_code)
-            .field("error_message", &display_name)
-            .field("minor_code", &self.inner.minor_code)
-            .field("request_code", &self.inner.request_code)
-            .field("type", &self.inner.type_)
-            .field("resource_id", &self.inner.resourceid)
-            .field("serial", &self.inner.serial)
+            .field("error_code", &self.error_code)
+            .field("error_message", &self.error_message)
+            .field("minor_code", &self.minor_code)
+            .field("request_code", &self.request_code)
+            .field("type", &self.type_)
+            .field("resource_id", &self.resource_id)
+            .field("serial", &self.serial)
             .finish()
     }
 }
